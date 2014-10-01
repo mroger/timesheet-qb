@@ -31,8 +31,22 @@ public class WorkPeriod {
 		this.employee = employee;
 	}
 
+	/**
+	 * Returns an immutable date.
+	 * 
+	 * @return LocalDate
+	 */
 	public LocalDate getDate() {
 		return date;
+	}
+
+	/**
+	 * Returns an immutable employee.
+	 * 
+	 * @return Employee
+	 */
+	public Employee getEmployee() {
+		return employee;
 	}
 
 	@Override
@@ -71,6 +85,4 @@ public class WorkPeriod {
 			return false;
 		return true;
 	}
-	
-	
 }
