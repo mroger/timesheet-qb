@@ -15,7 +15,7 @@ public class Employee {
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(id, name);
+		return Objects.hashCode(id);
 	}
 
 	@Override
@@ -31,11 +31,6 @@ public class Employee {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
 			return false;
 		return true;
 	}
