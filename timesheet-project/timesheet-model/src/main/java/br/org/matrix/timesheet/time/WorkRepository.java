@@ -15,4 +15,8 @@ public interface WorkRepository {
 	List<WorkPeriod> findByEmployee(Employee employee);
 
 	List<WorkPeriod> findByDateAndEmployee(LocalDate yesterday, Employee employee1);
+
+	List<WorkPeriod> findByDateInterval(LocalDate startDate, LocalDate finishDate);
+
+	List<WorkPeriod> findByDateIntervalAndEmployee(LocalDate startDate, LocalDate finishDate, Employee employee);
 }
