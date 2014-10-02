@@ -49,6 +49,14 @@ public class WorkPeriod {
 		return employee;
 	}
 
+	public LocalTime getStartTime() {
+		return startTime;
+	}
+
+	public LocalTime getStopTime() {
+		return stopTime;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hashCode(date, startTime, stopTime, employee);
