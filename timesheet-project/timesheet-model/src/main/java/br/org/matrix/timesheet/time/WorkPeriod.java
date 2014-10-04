@@ -1,34 +1,38 @@
 package br.org.matrix.timesheet.time;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
-import com.google.common.base.Objects;
-
-import static com.google.common.base.Preconditions.*;
-
+import br.org.matrix.timesheet.project.Allocation;
+import br.org.matrix.timesheet.project.Client;
 import br.org.matrix.timesheet.project.Employee;
+
+import com.google.common.base.Objects;
 
 public class WorkPeriod {
 
 	private LocalDate date;
 	private LocalTime startTime;
 	private LocalTime stopTime;
-	private Employee employee;
+	private Allocation allocation;
 	
-	public WorkPeriod(LocalDate date, LocalTime startTime, LocalTime stopTime,
-			Employee employee) {
+	public WorkPeriod(LocalDate date, LocalTime startTime, LocalTime stopTime, Allocation allocation) {
 		super();
 		checkState(date!=null, "Date cannot be null.");
 		checkState(startTime!=null, "Start time cannot be null.");
 		checkState(stopTime!=null, "Stop time cannot be null.");
-		checkState(employee!=null, "Client cannot be null.");
+		checkState(allocation!=null, "Allocation cannot be null.");
+		checkState(allocation.getEmployee()!=null, "Employee cannot be null.");
+		checkState(allocation.getProject()!=null, "Project cannot be null.");
 		checkArgument(startTime.compareTo(stopTime) < 0, "StartTime must be less than StopTime.");
 		
 		this.date = date;
 		this.startTime = startTime;
 		this.stopTime = stopTime;
-		this.employee = employee;
+		this.allocation = allocation;
 	}
 
 	/**
@@ -41,12 +45,12 @@ public class WorkPeriod {
 	}
 
 	/**
-	 * Returns an immutable employee.
+	 * Returns an immutable allocation.
 	 * 
-	 * @return Employee
+	 * @return Allocation
 	 */
-	public Employee getEmployee() {
-		return employee;
+	public Allocation getAllocation() {
+		return allocation;
 	}
 
 	public LocalTime getStartTime() {
@@ -57,9 +61,22 @@ public class WorkPeriod {
 		return stopTime;
 	}
 
+	/**
+	 * Delegates to Allocation to return employee.
+	 * 
+	 * @return Employee
+	 */
+	public Employee getEmployee() {
+		return allocation.getEmployee();
+	}
+
+	public Client getClient() {
+		return allocation.getProject().getClient();
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(date, startTime, stopTime, employee);
+		return Objects.hashCode(date, startTime, stopTime, allocation);
 	}
 
 	@Override
@@ -76,10 +93,10 @@ public class WorkPeriod {
 				return false;
 		} else if (!date.equals(other.date))
 			return false;
-		if (employee == null) {
-			if (other.employee != null)
+		if (allocation == null) {
+			if (other.allocation != null)
 				return false;
-		} else if (!employee.equals(other.employee))
+		} else if (!allocation.equals(other.allocation))
 			return false;
 		if (startTime == null) {
 			if (other.startTime != null)
