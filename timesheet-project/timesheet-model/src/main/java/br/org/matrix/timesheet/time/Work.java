@@ -50,8 +50,11 @@ public class Work implements WorkRepository {
 			workPeriodsByEmployee.add(workPeriod);
 			workUnitsByEmployee.put(workPeriod.getEmployee(), workPeriodsByEmployee);
 		} else {
-			// TODO Extract this to a rule class
-			checkForOverlaps(workPeriodsByEmployee, workPeriod);
+			if (workPeriod.overlaps(workPeriodsByEmployee)) {
+				throw new DateIntervalOvelapsException(workPeriod.getEmployee().getId(), 
+						workPeriod.getEmployee().getName(), workPeriod.getDate(), 
+						workPeriod.getStartTime(), workPeriod.getStopTime());
+			}
 			workPeriodsByEmployee.add(workPeriod);
 		}
 		
@@ -62,24 +65,6 @@ public class Work implements WorkRepository {
 			workUnitsByClient.put(workPeriod.getClient(), workPeriodsByClient);
 		} else {
 			workPeriodsByClient.add(workPeriod);
-		}
-	}
-
-	private void checkForOverlaps(List<WorkPeriod> workPeriodsByEmployee, WorkPeriod workPeriod) {
-		int startMillisOfDay = workPeriod.getStartTime().getMillisOfDay();
-		int stopMillisOfDay = workPeriod.getStopTime().getMillisOfDay();
-		for (WorkPeriod workPeriodStored : workPeriodsByEmployee) {
-			if (workPeriodStored.getDate().equals(workPeriod.getDate()) &&
-					workPeriodStored.getClient().equals(workPeriod.getClient())) {
-				int startStoredMillisOfDay = workPeriodStored.getStartTime().getMillisOfDay();
-				int stopStoredMillisOfDay = workPeriodStored.getStopTime().getMillisOfDay();
-				if (((startMillisOfDay <= startStoredMillisOfDay) && (stopMillisOfDay >= startStoredMillisOfDay)) 
-						|| ((startMillisOfDay <= stopStoredMillisOfDay) && (stopMillisOfDay >= stopStoredMillisOfDay))) {
-					throw new DateIntervalOvelapsException(workPeriod.getEmployee().getId(), 
-							workPeriod.getEmployee().getName(), workPeriod.getDate(), 
-							workPeriod.getStartTime(), workPeriod.getStopTime());
-				}
-			}
 		}
 	}
 
