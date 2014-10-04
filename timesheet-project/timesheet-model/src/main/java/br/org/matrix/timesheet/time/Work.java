@@ -5,12 +5,14 @@ import java.util.Map;
 
 import org.joda.time.LocalDate;
 
+import br.org.matrix.timesheet.project.AllocationDB;
+import br.org.matrix.timesheet.project.AllocationRepository;
+import br.org.matrix.timesheet.project.Client;
 import br.org.matrix.timesheet.project.DateIntervalOvelapsException;
 import br.org.matrix.timesheet.project.Employee;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -18,10 +20,18 @@ public class Work implements WorkRepository {
 
 	private Map<LocalDate, List<WorkPeriod>> workUnitsByDate;
 	private Map<Employee, List<WorkPeriod>> workUnitsByEmployee;
+	private Map<Client, List<WorkPeriod>> workUnitsByClient;
+	
+	private AllocationRepository allocationRepository;
 	
 	public Work() {
 		workUnitsByDate = Maps.newHashMap();
 		workUnitsByEmployee = Maps.newHashMap();
+		workUnitsByClient = Maps.newHashMap();
+		
+		//TODO Find a better name for this in memory DB
+		//TODO Inject from the tests
+		allocationRepository = new AllocationDB();
 	}
 
 	public void store(WorkPeriod workPeriod) {
@@ -40,18 +50,27 @@ public class Work implements WorkRepository {
 			workPeriodsByEmployee.add(workPeriod);
 			workUnitsByEmployee.put(workPeriod.getEmployee(), workPeriodsByEmployee);
 		} else {
-			// TODO Extract this to a rule
+			// TODO Extract this to a rule class
 			checkForOverlaps(workPeriodsByEmployee, workPeriod);
 			workPeriodsByEmployee.add(workPeriod);
 		}
 		
+		List<WorkPeriod> workPeriodsByClient = workUnitsByClient.get(workPeriod.getClient());
+		if (workPeriodsByClient == null) {
+			workPeriodsByClient = Lists.newArrayList();
+			workPeriodsByClient.add(workPeriod);
+			workUnitsByClient.put(workPeriod.getClient(), workPeriodsByClient);
+		} else {
+			workPeriodsByClient.add(workPeriod);
+		}
 	}
 
 	private void checkForOverlaps(List<WorkPeriod> workPeriodsByEmployee, WorkPeriod workPeriod) {
 		int startMillisOfDay = workPeriod.getStartTime().getMillisOfDay();
 		int stopMillisOfDay = workPeriod.getStopTime().getMillisOfDay();
 		for (WorkPeriod workPeriodStored : workPeriodsByEmployee) {
-			if (workPeriodStored.getDate().equals(workPeriod.getDate())) {
+			if (workPeriodStored.getDate().equals(workPeriod.getDate()) &&
+					workPeriodStored.getClient().equals(workPeriod.getClient())) {
 				int startStoredMillisOfDay = workPeriodStored.getStartTime().getMillisOfDay();
 				int stopStoredMillisOfDay = workPeriodStored.getStopTime().getMillisOfDay();
 				if (((startMillisOfDay <= startStoredMillisOfDay) && (stopMillisOfDay >= startStoredMillisOfDay)) 
@@ -93,6 +112,10 @@ public class Work implements WorkRepository {
 		Predicate<WorkPeriod> dateIntervalPredicate = createWorkPeriodPredicate(startDate, finishDate);
 		List<WorkPeriod> workPeriodsByEmployee = workUnitsByEmployee.get(employee);
 		return Lists.newArrayList(Collections2.filter(workPeriodsByEmployee, dateIntervalPredicate));
+	}
+
+	public List<WorkPeriod> findByClient(Client client) {
+		return workUnitsByClient.get(client);
 	}
 
 	private Predicate<WorkPeriod> createWorkPeriodPredicate(final Employee employee) {
