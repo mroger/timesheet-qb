@@ -3,11 +3,14 @@ package br.org.matrix.timesheet.time;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
+import java.util.List;
+
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
 import br.org.matrix.timesheet.project.Allocation;
 import br.org.matrix.timesheet.project.Client;
+import br.org.matrix.timesheet.project.DateIntervalOvelapsException;
 import br.org.matrix.timesheet.project.Employee;
 
 import com.google.common.base.Objects;
@@ -72,6 +75,30 @@ public class WorkPeriod {
 
 	public Client getClient() {
 		return allocation.getProject().getClient();
+	}
+
+	/**
+	 * Checks if this period overlaps any of the periods in the collection passed. 
+	 * 
+	 * @param workPeriodsByEmployee
+	 * @return true if an overlap is found, false otherwise
+	 */
+	public boolean overlaps(List<WorkPeriod> workPeriodsByEmployee) {
+		//TODO Improve this search for overlaps
+		int startMillisOfDay = this.getStartTime().getMillisOfDay();
+		int stopMillisOfDay = this.getStopTime().getMillisOfDay();
+		for (WorkPeriod workPeriodStored : workPeriodsByEmployee) {
+			if (workPeriodStored.getDate().equals(this.getDate()) &&
+					workPeriodStored.getClient().equals(this.getClient())) {
+				int startStoredMillisOfDay = workPeriodStored.getStartTime().getMillisOfDay();
+				int stopStoredMillisOfDay = workPeriodStored.getStopTime().getMillisOfDay();
+				if (((startMillisOfDay <= startStoredMillisOfDay) && (stopMillisOfDay >= startStoredMillisOfDay)) 
+						|| ((startMillisOfDay <= stopStoredMillisOfDay) && (stopMillisOfDay >= stopStoredMillisOfDay))) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	@Override
