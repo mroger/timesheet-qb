@@ -1,5 +1,7 @@
 package br.org.matrix.timesheet.project;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import com.google.common.base.Objects;
 
 public class Employee {
@@ -9,6 +11,10 @@ public class Employee {
 	
 	public Employee(Integer id, String name) {
 		super();
+		
+		checkState(id!=null, "Id cannot be null.");
+		checkState(name!=null, "Name cannot be null.");
+		
 		this.id = id;
 		this.name = name;
 	}
