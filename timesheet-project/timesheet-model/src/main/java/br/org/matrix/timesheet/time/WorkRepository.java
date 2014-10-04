@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.joda.time.LocalDate;
 
+import br.org.matrix.timesheet.project.Client;
 import br.org.matrix.timesheet.project.Employee;
 
 public interface WorkRepository {
@@ -19,4 +20,6 @@ public interface WorkRepository {
 	List<WorkPeriod> findByDateInterval(LocalDate startDate, LocalDate finishDate);
 
 	List<WorkPeriod> findByDateIntervalAndEmployee(LocalDate startDate, LocalDate finishDate, Employee employee);
+
+	List<WorkPeriod> findByClient(Client client);
 }
