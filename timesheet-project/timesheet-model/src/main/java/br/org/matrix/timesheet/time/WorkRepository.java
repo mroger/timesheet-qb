@@ -22,4 +22,10 @@ public interface WorkRepository {
 	List<WorkPeriod> findByDateIntervalAndEmployee(LocalDate startDate, LocalDate finishDate, Employee employee);
 
 	List<WorkPeriod> findByClient(Client client);
+
+	List<WorkPeriod> findByDateAndClient(LocalDate date, Client client);
+
+	List<WorkPeriod> findByDateIntervalAndClient(LocalDate startDate, LocalDate finishDate, Client client);
+
+	List<WorkPeriod> findByMonthAndClient(int month, Client client);
 }
