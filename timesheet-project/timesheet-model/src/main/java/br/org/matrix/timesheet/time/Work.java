@@ -103,6 +103,24 @@ public class Work implements WorkRepository {
 		return workUnitsByClient.get(client);
 	}
 
+	public List<WorkPeriod> findByDateAndClient(LocalDate date, Client client) {
+		Predicate<WorkPeriod> datePredicate = createWorkPeriodPredicate(date);
+		List<WorkPeriod> workPeriodsByClient = workUnitsByClient.get(client);
+		return Lists.newArrayList(Collections2.filter(workPeriodsByClient, datePredicate));
+	}
+
+	public List<WorkPeriod> findByDateIntervalAndClient(LocalDate startDate, LocalDate finishDate, Client client) {
+		Predicate<WorkPeriod> dateIntervalPredicate = createWorkPeriodPredicate(startDate, finishDate);
+		List<WorkPeriod> workPeriodsByClient = workUnitsByClient.get(client);
+		return Lists.newArrayList(Collections2.filter(workPeriodsByClient, dateIntervalPredicate));
+	}
+
+	public List<WorkPeriod> findByMonthAndClient(int month, Client client) {
+		Predicate<WorkPeriod> dateMonthPredicate = createWorkPeriodPredicate(month);
+		List<WorkPeriod> workPeriodsByClient = workUnitsByClient.get(client);
+		return Lists.newArrayList(Collections2.filter(workPeriodsByClient, dateMonthPredicate));
+	}
+
 	private Predicate<WorkPeriod> createWorkPeriodPredicate(final Employee employee) {
 		Predicate<WorkPeriod> employeePredicate = new Predicate<WorkPeriod>() {
 			public boolean apply(WorkPeriod workPeriod) {
@@ -120,6 +138,24 @@ public class Work implements WorkRepository {
 			}
 		};
 		return employeePredicate;
+	}
+
+	private Predicate<WorkPeriod> createWorkPeriodPredicate(final LocalDate date) {
+		Predicate<WorkPeriod> datePredicate = new Predicate<WorkPeriod>() {
+			public boolean apply(WorkPeriod workPeriod) {
+				return workPeriod.getDate().equals(date);
+			}
+		};
+		return datePredicate;
+	}
+
+	private Predicate<WorkPeriod> createWorkPeriodPredicate(final int month) {
+		Predicate<WorkPeriod> datePredicate = new Predicate<WorkPeriod>() {
+			public boolean apply(WorkPeriod workPeriod) {
+				return workPeriod.getDate().monthOfYear().get() == month;
+			}
+		};
+		return datePredicate;
 	}
 
 	private Predicate<LocalDate> createDatePredicate(final LocalDate startDate, final LocalDate finishDate) {
