@@ -1,9 +1,13 @@
 package br.org.matrix.timesheet.time;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Iterables.isEmpty;
+
 import java.util.List;
 import java.util.Map;
 
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 
 import br.org.matrix.timesheet.project.AllocationDB;
 import br.org.matrix.timesheet.project.AllocationRepository;
@@ -18,6 +22,7 @@ import com.google.common.collect.Maps;
 
 public class Work implements WorkRepository {
 
+	private List<WorkPeriod> workUnits;
 	private Map<LocalDate, List<WorkPeriod>> workUnitsByDate;
 	private Map<Employee, List<WorkPeriod>> workUnitsByEmployee;
 	private Map<Client, List<WorkPeriod>> workUnitsByClient;
@@ -25,6 +30,7 @@ public class Work implements WorkRepository {
 	private AllocationRepository allocationRepository;
 	
 	public Work() {
+		workUnits = Lists.newArrayList();
 		workUnitsByDate = Maps.newHashMap();
 		workUnitsByEmployee = Maps.newHashMap();
 		workUnitsByClient = Maps.newHashMap();
@@ -35,6 +41,8 @@ public class Work implements WorkRepository {
 	}
 
 	public void store(WorkPeriod workPeriod) {
+		workUnits.add(workPeriod);
+		
 		List<WorkPeriod> workPeriodsByDate = workUnitsByDate.get(workPeriod.getDate());
 		if (workPeriodsByDate == null) {
 			workPeriodsByDate = Lists.newArrayList();
@@ -50,6 +58,7 @@ public class Work implements WorkRepository {
 			workPeriodsByEmployee.add(workPeriod);
 			workUnitsByEmployee.put(workPeriod.getEmployee(), workPeriodsByEmployee);
 		} else {
+			//TODO Move to beginning of the method
 			if (workPeriod.overlaps(workPeriodsByEmployee)) {
 				throw new DateIntervalOvelapsException(workPeriod.getEmployee().getId(), 
 						workPeriod.getEmployee().getName(), workPeriod.getDate(), 
@@ -65,6 +74,36 @@ public class Work implements WorkRepository {
 			workUnitsByClient.put(workPeriod.getClient(), workPeriodsByClient);
 		} else {
 			workPeriodsByClient.add(workPeriod);
+		}
+	}
+	
+	//TODO Write tests
+	public void delete(WorkPeriod workPeriod) {
+		workUnits.remove(workPeriod);
+		
+		//TODO Extract duplicate code to a generic class
+		for(LocalDate localDate : workUnitsByDate.keySet()) {
+			List<WorkPeriod> workUnits = workUnitsByDate.get(localDate);
+			if (workUnits.contains(workPeriod)) {
+				workUnits.remove(workPeriod);
+				break;
+			}
+		}
+		
+		for(Employee employee : workUnitsByEmployee.keySet()) {
+			List<WorkPeriod> workUnits = workUnitsByEmployee.get(employee);
+			if (workUnits.contains(workPeriod)) {
+				workUnits.remove(workPeriod);
+				break;
+			}
+		}
+		
+		for(Client client : workUnitsByClient.keySet()) {
+			List<WorkPeriod> workUnits = workUnitsByClient.get(client);
+			if (workUnits.contains(workPeriod)) {
+				workUnits.remove(workPeriod);
+				break;
+			}
 		}
 	}
 
@@ -121,6 +160,24 @@ public class Work implements WorkRepository {
 		return Lists.newArrayList(Collections2.filter(workPeriodsByClient, dateMonthPredicate));
 	}
 
+	public List<WorkPeriod> findByMonthIntervalAndClient(int startMonth, int finishMonth, Client client) {
+		Predicate<WorkPeriod> dateMonthPredicate = createWorkPeriodPredicate(startMonth, finishMonth);
+		List<WorkPeriod> workPeriodsByClient = workUnitsByClient.get(client);
+		return Lists.newArrayList(Collections2.filter(workPeriodsByClient, dateMonthPredicate));
+	}
+
+	public void update(final WorkPeriod workPeriod, final LocalTime startTime, final LocalTime finishTime) {
+		Predicate<WorkPeriod> workUnitPredicate = createWorkPeriodPredicate(workPeriod);
+		List<WorkPeriod> workPeriodsByEmployee = workUnitsByEmployee.get(workPeriod.getEmployee());
+		List<WorkPeriod> filteredWorkPeriod = Lists.newArrayList(Collections2.filter(workPeriodsByEmployee, workUnitPredicate));
+		checkArgument(!isEmpty(filteredWorkPeriod), "Trying to change interval that does not exist.");
+		WorkPeriod storedWorkPeriod = filteredWorkPeriod.get(0);
+		delete(storedWorkPeriod);
+		WorkPeriod newWorkPeriod = new WorkPeriod(
+				storedWorkPeriod.getDate(), startTime, finishTime, storedWorkPeriod.getAllocation());
+		store(newWorkPeriod);
+	}
+
 	private Predicate<WorkPeriod> createWorkPeriodPredicate(final Employee employee) {
 		Predicate<WorkPeriod> employeePredicate = new Predicate<WorkPeriod>() {
 			public boolean apply(WorkPeriod workPeriod) {
@@ -156,6 +213,25 @@ public class Work implements WorkRepository {
 			}
 		};
 		return datePredicate;
+	}
+
+	private Predicate<WorkPeriod> createWorkPeriodPredicate(final int startMonth, final int finishMonth) {
+		Predicate<WorkPeriod> datePredicate = new Predicate<WorkPeriod>() {
+			public boolean apply(WorkPeriod workPeriod) {
+				return (workPeriod.getDate().monthOfYear().get() >= startMonth) && 
+					(workPeriod.getDate().monthOfYear().get() <= finishMonth);
+			}
+		};
+		return datePredicate;
+	}
+
+	private Predicate<WorkPeriod> createWorkPeriodPredicate(final WorkPeriod workPeriodParam) {
+		Predicate<WorkPeriod> workPeriodPredicate = new Predicate<WorkPeriod>() {
+			public boolean apply(WorkPeriod workPeriod) {
+				return workPeriod.equals(workPeriodParam);
+			}
+		};
+		return workPeriodPredicate;
 	}
 
 	private Predicate<LocalDate> createDatePredicate(final LocalDate startDate, final LocalDate finishDate) {
