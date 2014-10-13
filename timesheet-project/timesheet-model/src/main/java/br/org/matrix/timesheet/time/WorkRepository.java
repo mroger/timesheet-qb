@@ -3,6 +3,7 @@ package br.org.matrix.timesheet.time;
 import java.util.List;
 
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 
 import br.org.matrix.timesheet.project.Client;
 import br.org.matrix.timesheet.project.Employee;
@@ -15,7 +16,7 @@ public interface WorkRepository {
 
 	List<WorkPeriod> findByEmployee(Employee employee);
 
-	List<WorkPeriod> findByDateAndEmployee(LocalDate yesterday, Employee employee1);
+	List<WorkPeriod> findByDateAndEmployee(LocalDate yesterday, Employee employee);
 
 	List<WorkPeriod> findByDateInterval(LocalDate startDate, LocalDate finishDate);
 
@@ -28,4 +29,18 @@ public interface WorkRepository {
 	List<WorkPeriod> findByDateIntervalAndClient(LocalDate startDate, LocalDate finishDate, Client client);
 
 	List<WorkPeriod> findByMonthAndClient(int month, Client client);
+
+	List<WorkPeriod> findByMonthIntervalAndClient(int startMonth, int finishMonth, Client client);
+
+	/**
+	 * Updates workperiod interval. 
+	 * 
+	 * @param workedInterval
+	 * @param startTime
+	 * @param finishTime
+	 */
+	void update(WorkPeriod workedInterval, LocalTime startTime, LocalTime finishTime);
+
+	void delete(WorkPeriod workPeriod);
+	
 }
