@@ -10,7 +10,6 @@ import org.joda.time.LocalTime;
 
 import br.org.matrix.timesheet.project.Allocation;
 import br.org.matrix.timesheet.project.Client;
-import br.org.matrix.timesheet.project.DateIntervalOvelapsException;
 import br.org.matrix.timesheet.project.Employee;
 
 import com.google.common.base.Objects;
