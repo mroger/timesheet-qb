@@ -645,6 +645,164 @@ public class WorkTest {
 		assertTrue(workPeriodsNew.contains(workedInterval2));
 	}
 	
+	//TODO Create more variations of this
+	@Test
+	public void shouldReturnWorkedMinutesInADay() {
+		LocalDate today = today();
+		
+		Allocation allocationClient1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		
+		WorkPeriod workedInterval1 = new WorkPeriod(today, time(8, 12), time(12, 17), allocationClient1); // 245 min
+		WorkPeriod workedInterval2 = new WorkPeriod(today, time(13, 27), time(17, 12), allocationClient1); // 225 min
+		WorkPeriod workedInterval3 = new WorkPeriod(today, time(18, 3), time(21, 19), allocationClient1); // 196 min
+																										  // 666 min
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedInterval1);
+		workRepository.store(workedInterval2);
+		workRepository.store(workedInterval3);
+		
+		int workMinutesInADay = workRepository.getWorkedMinutesByDate(today);
+		
+		assertThat(workMinutesInADay, equalTo(666));
+	}
+	
+	@Test
+	public void shouldReturnWorkedHoursInADayByAnEmployee() {
+		LocalDate yesterday = yesterday();
+		LocalDate today = today();
+		
+		Allocation allocationClient1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		Allocation allocationClient2 = createAllocation(2, "emp02", 2, "project02", 2, "client02");
+		
+		WorkPeriod workedInterval1Date1Client1 = new WorkPeriod(yesterday, time(8, 11), time(12, 22), allocationClient1); // 251 min
+		WorkPeriod workedInterval2Date1Client1 = new WorkPeriod(yesterday, time(13, 10), time(17, 20), allocationClient1); // 250 min
+		WorkPeriod workedInterval1Date2Client1 = new WorkPeriod(today, time(8, 8), time(12, 18), allocationClient1); // 250 min
+		WorkPeriod workedInterval2Date2Client1 = new WorkPeriod(today, time(13, 5), time(17, 15), allocationClient1); // 250 min
+		WorkPeriod workedInterval1Date1Client2 = new WorkPeriod(yesterday, time(8, 3), time(12, 13), allocationClient2); // 250 min
+		WorkPeriod workedInterval2Date1Client2 = new WorkPeriod(yesterday, time(13, 7), time(17, 27), allocationClient2); // 260 min
+		WorkPeriod workedInterval1Date2Client2 = new WorkPeriod(today, time(8, 9), time(12, 39), allocationClient2); // 270 min
+		WorkPeriod workedInterval2Date2Client2 = new WorkPeriod(today, time(13, 40), time(17, 50), allocationClient2); // 250 min
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedInterval1Date1Client1);
+		workRepository.store(workedInterval2Date1Client1);
+		workRepository.store(workedInterval1Date2Client1);
+		workRepository.store(workedInterval2Date2Client1);
+		workRepository.store(workedInterval1Date1Client2);
+		workRepository.store(workedInterval2Date1Client2);
+		workRepository.store(workedInterval1Date2Client2);
+		workRepository.store(workedInterval2Date2Client2);
+		
+		int workMinutesByEmployee = workRepository.getWorkedMinutesByDateByEmployee(today, new Employee(1, "emp01"));
+		
+		assertThat(workMinutesByEmployee, equalTo(500));
+	}
+	
+	@Test
+	public void shouldReturnWorkedHoursInADateInterval() {
+		LocalDate date1 = createDate(2000, 1, 1);
+		LocalDate date2 = createDate(2000, 1, 2);
+		LocalDate date3 = createDate(2000, 1, 3);
+		LocalDate date4 = createDate(2000, 1, 4);
+		LocalDate date5 = createDate(2000, 1, 5);
+		LocalDate date6 = createDate(2000, 1, 6);
+		
+		Allocation allocation = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		
+		WorkPeriod workedDate1Employee1 = new WorkPeriod(date1, time(8, 10), time(12, 20), allocation); // 250 min
+		WorkPeriod workedDate2Employee1 = new WorkPeriod(date2, time(8, 20), time(12, 30), allocation); // 250 min
+		WorkPeriod workedDate3Employee1 = new WorkPeriod(date3, time(8, 40), time(12, 50), allocation); // 250 min
+		WorkPeriod workedDate4Employee1 = new WorkPeriod(date4, time(8, 30), time(12, 40), allocation); // 250 min
+		WorkPeriod workedDate5Employee1 = new WorkPeriod(date5, time(8, 20), time(12, 30), allocation); // 250 min
+		WorkPeriod workedDate6Employee1 = new WorkPeriod(date6, time(8, 10), time(12, 20), allocation); // 250 min
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedDate1Employee1);
+		workRepository.store(workedDate2Employee1);
+		workRepository.store(workedDate3Employee1);
+		workRepository.store(workedDate4Employee1);
+		workRepository.store(workedDate5Employee1);
+		workRepository.store(workedDate6Employee1);
+		
+		int workMinutesByEmployee = workRepository.getWorkedMinutesByDateInterval(date2, date4);
+		
+		assertThat(workMinutesByEmployee, equalTo(750));
+	}
+	
+	@Test
+	public void shouldReturnWorkedHoursInADateIntervalByAnEmployee() {
+		LocalDate date1 = createDate(2000, 1, 1);
+		LocalDate date2 = createDate(2000, 1, 2);
+		LocalDate date3 = createDate(2000, 1, 3);
+		LocalDate date4 = createDate(2000, 1, 4);
+		LocalDate date5 = createDate(2000, 1, 5);
+		LocalDate date6 = createDate(2000, 1, 6);
+		
+		Allocation allocationEmployee1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		Allocation allocationEmployee2 = createAllocation(2, "emp02", 1, "project01", 1, "client01");
+		
+		WorkPeriod workedDate1Employee1 = new WorkPeriod(date1, time(8, 0), time(12, 30), allocationEmployee1); // 270 min
+		WorkPeriod workedDate2Employee1 = new WorkPeriod(date2, time(8, 10), time(12, 25), allocationEmployee1); // 255 min
+		WorkPeriod workedDate3Employee1 = new WorkPeriod(date3, time(8, 20), time(12, 30), allocationEmployee1); // 250 min
+		WorkPeriod workedDate4Employee1 = new WorkPeriod(date4, time(8, 30), time(12, 40), allocationEmployee1); // 250 min
+		WorkPeriod workedDate5Employee1 = new WorkPeriod(date5, time(8, 40), time(12, 50), allocationEmployee1); // 250 min
+		WorkPeriod workedDate6Employee1 = new WorkPeriod(date6, time(8, 0), time(12, 10), allocationEmployee1); // 250 min
+		WorkPeriod workedDate1Employee2 = new WorkPeriod(date1, time(8, 10), time(12, 50), allocationEmployee2); // 280 min
+		WorkPeriod workedDate2Employee2 = new WorkPeriod(date2, time(8, 20), time(13, 0), allocationEmployee2); // 280 min
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedDate1Employee1);
+		workRepository.store(workedDate2Employee1);
+		workRepository.store(workedDate3Employee1);
+		workRepository.store(workedDate4Employee1);
+		workRepository.store(workedDate5Employee1);
+		workRepository.store(workedDate6Employee1);
+		workRepository.store(workedDate1Employee2);
+		workRepository.store(workedDate2Employee2);
+		
+		int workMinutesByEmployee = workRepository.getWorkedMinutesByDateIntervalAndEmployee(date1, date2, new Employee(2, "emp02"));
+		
+		assertThat(workMinutesByEmployee, equalTo(560));
+	}
+	
+	@Test
+	public void shouldReturnWorkedHoursInAMonth() {
+		
+	}
+	
+	@Test
+	public void shouldReturnWorkedHoursInAMonthByAnEmployee() {
+		
+	}
+	
+	@Test
+	public void shouldReturnWorkedHoursBetweenTwoMonths() {
+		
+	}
+	
+	@Test
+	public void shouldReturnWorkedHoursBetweenTwoMonthsByAnEmployee() {
+		
+	}
+	
+	@Test
+	public void shouldReturnWorkedHoursInAProject() {
+		
+	}
+	
+	@Test
+	public void shouldReturnWorkedHoursInAProjectByAnEmployee() {
+		
+	}
+	
+	/**
+	 * Looks for intervals with only start time
+	 */
+	@Test
+	public void shouldFindIntervalsThatAreOpen() {
+		
+	}
+	
 	@Test
 	public void shouldFindProjects() {
 		
@@ -682,64 +840,6 @@ public class WorkTest {
 	
 	@Test
 	public void shouldFindAllocationsByClient() {
-		
-	}
-	
-	@Test
-	public void shouldReturnWorkedHoursInADay() {
-		
-	}
-	
-	@Test
-	public void shouldReturnWorkedHoursInADayByAnEmployee() {
-		
-	}
-	
-	@Test
-	public void shouldReturnWorkedHoursInADateInterval() {
-		
-	}
-	
-	@Test
-	public void shouldReturnWorkedHoursInADateIntervalByAnEmployee() {
-		
-	}
-	
-	@Test
-	public void shouldReturnWorkedHoursInAMonth() {
-		
-	}
-	
-	@Test
-	public void shouldReturnWorkedHoursInAMonthByAnEmployee() {
-		
-	}
-	
-	@Test
-	public void shouldReturnWorkedHoursBetweenTwoMonths() {
-		
-	}
-	
-	@Test
-	public void shouldReturnWorkedHoursBetweenTwoMonthsByAnEmployee() {
-		
-	}
-	
-	@Test
-	public void shouldReturnWorkedHoursInAProject() {
-		
-	}
-	
-	@Test
-	public void shouldReturnWorkedHoursInAProjectByAnEmployee() {
-		
-	}
-	
-	/**
-	 * Looks for intervals with only start time
-	 */
-	@Test
-	public void shouldFindOpenIntervals() {
 		
 	}
 
