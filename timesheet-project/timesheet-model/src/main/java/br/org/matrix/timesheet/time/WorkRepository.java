@@ -42,5 +42,19 @@ public interface WorkRepository {
 	void update(WorkPeriod workedInterval, LocalTime startTime, LocalTime finishTime);
 
 	void delete(WorkPeriod workPeriod);
+
+	/**
+	 * Returns total number of worked minutes of all employees in a day. 
+	 * 
+	 * @param date
+	 * @return
+	 */
+	int getWorkedMinutesByDate(LocalDate date);
+
+	int getWorkedMinutesByDateByEmployee(LocalDate date, Employee employee);
+
+	int getWorkedMinutesByDateInterval(LocalDate startDate, LocalDate finishDate);
+
+	int getWorkedMinutesByDateIntervalAndEmployee(LocalDate startDate, LocalDate finishDate, Employee employee);
 	
 }
