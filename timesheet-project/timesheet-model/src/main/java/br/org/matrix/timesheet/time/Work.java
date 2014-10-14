@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
+import org.joda.time.Minutes;
 
 import br.org.matrix.timesheet.project.AllocationDB;
 import br.org.matrix.timesheet.project.AllocationRepository;
@@ -115,12 +116,14 @@ public class Work implements WorkRepository {
 		return workUnitsByEmployee.get(employee);
 	}
 
+	//TODO Duplicated with getWorkedMinutesByDateByEmployee()
 	public List<WorkPeriod> findByDateAndEmployee(final LocalDate date, final Employee employee) {
 		Predicate<WorkPeriod> employeePredicate = createWorkPeriodPredicate(employee);
 		List<WorkPeriod> workPeriodsByDate = workUnitsByDate.get(date);
 		return Lists.newArrayList(Collections2.filter(workPeriodsByDate, employeePredicate));
 	}
 
+	//TODO Duplicated with getWorkedMinutesByDateInterval()
 	public List<WorkPeriod> findByDateInterval(final LocalDate startDate, final LocalDate finishDate) {
 		Predicate<LocalDate> dateIntervalPredicate = createDatePredicate(startDate, finishDate);
 		Map<LocalDate, List<WorkPeriod>> _workUnits = Maps.filterKeys(workUnitsByDate, dateIntervalPredicate);
@@ -132,6 +135,7 @@ public class Work implements WorkRepository {
 		return workPeriods;
 	}
 
+	//TODO Duplicated with getWorkedMinutesByDateIntervalAndEmployee()
 	public List<WorkPeriod> findByDateIntervalAndEmployee(final LocalDate startDate, final LocalDate finishDate, final Employee employee) {
 		Predicate<WorkPeriod> dateIntervalPredicate = createWorkPeriodPredicate(startDate, finishDate);
 		List<WorkPeriod> workPeriodsByEmployee = workUnitsByEmployee.get(employee);
@@ -176,6 +180,52 @@ public class Work implements WorkRepository {
 		WorkPeriod newWorkPeriod = new WorkPeriod(
 				storedWorkPeriod.getDate(), startTime, finishTime, storedWorkPeriod.getAllocation());
 		store(newWorkPeriod);
+	}
+
+	public int getWorkedMinutesByDate(LocalDate date) {
+		int total = 0;
+		List<WorkPeriod> workPeriodsByDate = workUnitsByDate.get(date);
+		for (WorkPeriod workPeriod : workPeriodsByDate) {
+			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
+		}
+		return total;
+	}
+
+	public int getWorkedMinutesByDateByEmployee(LocalDate date, Employee employee) {
+		int total = 0;
+		Predicate<WorkPeriod> employeePredicate = createWorkPeriodPredicate(employee);
+		List<WorkPeriod> workPeriodsByDate = workUnitsByDate.get(date);
+		List<WorkPeriod> workPeriodsByEmployee =  Lists.newArrayList(Collections2.filter(workPeriodsByDate, employeePredicate));
+		for (WorkPeriod workPeriod : workPeriodsByEmployee) {
+			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
+		}
+		return total;
+	}
+
+	public int getWorkedMinutesByDateInterval(LocalDate startDate, LocalDate finishDate) {
+		int total = 0;
+		Predicate<LocalDate> dateIntervalPredicate = createDatePredicate(startDate, finishDate);
+		Map<LocalDate, List<WorkPeriod>> _workUnits = Maps.filterKeys(workUnitsByDate, dateIntervalPredicate);
+		List<WorkPeriod> workPeriods = Lists.newArrayList();
+		for (LocalDate date : _workUnits.keySet()) {
+			List<WorkPeriod> _workPeriods = _workUnits.get(date);
+			workPeriods.addAll(_workPeriods);
+		}
+		for (WorkPeriod workPeriod : workPeriods) {
+			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
+		}
+		return total;
+	}
+
+	public int getWorkedMinutesByDateIntervalAndEmployee(LocalDate startDate, LocalDate finishDate, Employee employee) {
+		int total = 0;
+		Predicate<WorkPeriod> dateIntervalPredicate = createWorkPeriodPredicate(startDate, finishDate);
+		List<WorkPeriod> workPeriodsByEmployee = workUnitsByEmployee.get(employee);
+		List<WorkPeriod> workPeriodsByInterval = Lists.newArrayList(Collections2.filter(workPeriodsByEmployee, dateIntervalPredicate));
+		for (WorkPeriod workPeriod : workPeriodsByInterval) {
+			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
+		}
+		return total;
 	}
 
 	private Predicate<WorkPeriod> createWorkPeriodPredicate(final Employee employee) {
