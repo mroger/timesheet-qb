@@ -7,6 +7,7 @@ import org.joda.time.LocalTime;
 
 import br.org.matrix.timesheet.project.Client;
 import br.org.matrix.timesheet.project.Employee;
+import br.org.matrix.timesheet.project.Project;
 
 public interface WorkRepository {
 
@@ -15,6 +16,8 @@ public interface WorkRepository {
 	List<WorkPeriod> findByDate(LocalDate date);
 
 	List<WorkPeriod> findByEmployee(Employee employee);
+
+	List<WorkPeriod> findByProject(Project project);
 
 	List<WorkPeriod> findByDateAndEmployee(LocalDate yesterday, Employee employee);
 
@@ -56,5 +59,29 @@ public interface WorkRepository {
 	int getWorkedMinutesByDateInterval(LocalDate startDate, LocalDate finishDate);
 
 	int getWorkedMinutesByDateIntervalAndEmployee(LocalDate startDate, LocalDate finishDate, Employee employee);
+
+	int getWorkedMinutesByMonth(int month);
+
+	int getWorkedMinutesByMonthByEmployee(int month, Employee employee);
+
+	int getWorkedMinutesByMonthByClient(int month, Client client);
+
+	int getWorkedMinutesByMonthByClientByEmployee(int month, Client client,	Employee employee);
+
+	int getWorkedMinutesByMonthInterval(int startMonth, int finishMonth);
+
+	int getWorkedMinutesByMonthIntervalByEmployee(int startMonth, int finishMonth, Employee employee);
+
+	int getWorkedMinutesByMonthIntervalByClient(int startMonth, int finishMonth, Client client);
+
+	int getWorkedMinutesByMonthIntervalByClientByEmployee(int startMonth, int finishMonth, Client client, Employee employee);
+
+	int getWorkedMinutesByProject(Project project);
+
+	int getWorkedMinutesByMonthIntervalByProject(int startMonth, int finishMonth, Project project);
+
+	int getWorkedMinutesByProjectByEmployee(Project project, Employee employee);
+
+	int getWorkedMinutesByMonthIntervalByProjectByEmployee(int startMonth, int finishMonth, Project project, Employee employee);
 	
 }
