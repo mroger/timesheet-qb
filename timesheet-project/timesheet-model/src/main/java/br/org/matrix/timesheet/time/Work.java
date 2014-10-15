@@ -15,6 +15,7 @@ import br.org.matrix.timesheet.project.AllocationRepository;
 import br.org.matrix.timesheet.project.Client;
 import br.org.matrix.timesheet.project.DateIntervalOvelapsException;
 import br.org.matrix.timesheet.project.Employee;
+import br.org.matrix.timesheet.project.Project;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -27,6 +28,7 @@ public class Work implements WorkRepository {
 	private Map<LocalDate, List<WorkPeriod>> workUnitsByDate;
 	private Map<Employee, List<WorkPeriod>> workUnitsByEmployee;
 	private Map<Client, List<WorkPeriod>> workUnitsByClient;
+	private Map<Project, List<WorkPeriod>> workUnitsByProject;
 	
 	private AllocationRepository allocationRepository;
 	
@@ -35,6 +37,7 @@ public class Work implements WorkRepository {
 		workUnitsByDate = Maps.newHashMap();
 		workUnitsByEmployee = Maps.newHashMap();
 		workUnitsByClient = Maps.newHashMap();
+		workUnitsByProject = Maps.newHashMap();
 		
 		//TODO Find a better name for this in memory DB
 		//TODO Inject from the tests
@@ -76,6 +79,15 @@ public class Work implements WorkRepository {
 		} else {
 			workPeriodsByClient.add(workPeriod);
 		}
+		
+		List<WorkPeriod> workPeriodsByProject = workUnitsByProject.get(workPeriod.getProject());
+		if (workPeriodsByProject == null) {
+			workPeriodsByProject = Lists.newArrayList();
+			workPeriodsByProject.add(workPeriod);
+			workUnitsByProject.put(workPeriod.getProject(), workPeriodsByProject);
+		} else {
+			workPeriodsByProject.add(workPeriod);
+		}
 	}
 	
 	//TODO Write tests
@@ -114,6 +126,10 @@ public class Work implements WorkRepository {
 
 	public List<WorkPeriod> findByEmployee(Employee employee) {
 		return workUnitsByEmployee.get(employee);
+	}
+
+	public List<WorkPeriod> findByProject(Project project) {
+		return workUnitsByProject.get(project);
 	}
 
 	//TODO Duplicated with getWorkedMinutesByDateByEmployee()
@@ -223,6 +239,140 @@ public class Work implements WorkRepository {
 		List<WorkPeriod> workPeriodsByEmployee = workUnitsByEmployee.get(employee);
 		List<WorkPeriod> workPeriodsByInterval = Lists.newArrayList(Collections2.filter(workPeriodsByEmployee, dateIntervalPredicate));
 		for (WorkPeriod workPeriod : workPeriodsByInterval) {
+			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
+		}
+		return total;
+	}
+
+	public int getWorkedMinutesByMonth(int month) {
+		int total = 0;
+		Predicate<WorkPeriod> dateMonthPredicate = createWorkPeriodPredicate(month);
+		List<WorkPeriod> workPeriodsByMonth = Lists.newArrayList(Collections2.filter(workUnits, dateMonthPredicate));
+		for (WorkPeriod workPeriod : workPeriodsByMonth) {
+			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
+		}
+		return total;
+	}
+
+	public int getWorkedMinutesByMonthByEmployee(int month, Employee employee) {
+		int total = 0;
+		Predicate<WorkPeriod> dateMonthPredicate = createWorkPeriodPredicate(month);
+		List<WorkPeriod> workPeriodsByEmployee = workUnitsByEmployee.get(employee);
+		List<WorkPeriod> workPeriodsByMonth = Lists.newArrayList(Collections2.filter(workPeriodsByEmployee, dateMonthPredicate));
+		for (WorkPeriod workPeriod : workPeriodsByMonth) {
+			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
+		}
+		return total;
+	}
+
+	public int getWorkedMinutesByMonthByClient(int month, Client client) {
+		int total = 0;
+		Predicate<WorkPeriod> dateMonthPredicate = createWorkPeriodPredicate(month);
+		List<WorkPeriod> workPeriodsByClient = workUnitsByClient.get(client);
+		List<WorkPeriod> workPeriodsByMonth = Lists.newArrayList(Collections2.filter(workPeriodsByClient, dateMonthPredicate));
+		for (WorkPeriod workPeriod : workPeriodsByMonth) {
+			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
+		}
+		return total;
+	}
+
+	public int getWorkedMinutesByMonthByClientByEmployee(int month, Client client, Employee employee) {
+		int total = 0;
+		Predicate<WorkPeriod> dateMonthPredicate = createWorkPeriodPredicate(month);
+		Predicate<WorkPeriod> employeePredicate = createWorkPeriodPredicate(employee);
+		List<WorkPeriod> workPeriodsByClient = workUnitsByClient.get(client);
+		List<WorkPeriod> workPeriodsByMonth = Lists.newArrayList(Collections2.filter(workPeriodsByClient, dateMonthPredicate));
+		List<WorkPeriod> workPeriodsByEmployee = Lists.newArrayList(Collections2.filter(workPeriodsByMonth, employeePredicate));
+		for (WorkPeriod workPeriod : workPeriodsByEmployee) {
+			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
+		}
+		return total;
+	}
+
+	public int getWorkedMinutesByMonthInterval(int startMonth, int finishMonth) {
+		int total = 0;
+		Predicate<WorkPeriod> dateMonthPredicate = createWorkPeriodPredicate(startMonth, finishMonth);
+		List<WorkPeriod> workPeriodsByMonthInterval = Lists.newArrayList(Collections2.filter(workUnits, dateMonthPredicate));
+		for (WorkPeriod workPeriod : workPeriodsByMonthInterval) {
+			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
+		}
+		return total;
+	}
+
+	public int getWorkedMinutesByMonthIntervalByEmployee(int startMonth, int finishMonth, Employee employee) {
+		int total = 0;
+		Predicate<WorkPeriod> dateMonthPredicate = createWorkPeriodPredicate(startMonth, finishMonth);
+		List<WorkPeriod> workPeriodsByEmployee = workUnitsByEmployee.get(employee);
+		List<WorkPeriod> workPeriodsByMonthInterval = Lists.newArrayList(Collections2.filter(workPeriodsByEmployee, dateMonthPredicate));
+		for (WorkPeriod workPeriod : workPeriodsByMonthInterval) {
+			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
+		}
+		return total;
+	}
+
+	public int getWorkedMinutesByMonthIntervalByClient(int startMonth, int finishMonth, Client client) {
+		int total = 0;
+		Predicate<WorkPeriod> dateMonthPredicate = createWorkPeriodPredicate(startMonth, finishMonth);
+		List<WorkPeriod> workPeriodsByClient = workUnitsByClient.get(client);
+		List<WorkPeriod> workPeriodsByMonthInterval = Lists.newArrayList(Collections2.filter(workPeriodsByClient, dateMonthPredicate));
+		for (WorkPeriod workPeriod : workPeriodsByMonthInterval) {
+			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
+		}
+		return total;
+	}
+
+	public int getWorkedMinutesByMonthIntervalByClientByEmployee(int startMonth, int finishMonth, Client client, Employee employee) {
+		int total = 0;
+		Predicate<WorkPeriod> dateMonthPredicate = createWorkPeriodPredicate(startMonth, finishMonth);
+		Predicate<WorkPeriod> employeePredicate = createWorkPeriodPredicate(employee);
+		List<WorkPeriod> workPeriodsByClient = workUnitsByClient.get(client);
+		List<WorkPeriod> workPeriodsByMonth = Lists.newArrayList(Collections2.filter(workPeriodsByClient, dateMonthPredicate));
+		List<WorkPeriod> workPeriodsByEmployee = Lists.newArrayList(Collections2.filter(workPeriodsByMonth, employeePredicate));
+		for (WorkPeriod workPeriod : workPeriodsByEmployee) {
+			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
+		}
+		return total;
+	}
+
+	public int getWorkedMinutesByMonthIntervalByProject(int startMonth, int finishMonth, Project project) {
+		int total = 0;
+		Predicate<WorkPeriod> dateMonthPredicate = createWorkPeriodPredicate(startMonth, finishMonth);
+		List<WorkPeriod> workPeriodsByProject = workUnitsByProject.get(project);
+		List<WorkPeriod> workPeriodsByMonth = Lists.newArrayList(Collections2.filter(workPeriodsByProject, dateMonthPredicate));
+		for (WorkPeriod workPeriod : workPeriodsByMonth) {
+			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
+		}
+		return total;
+	}
+
+	public int getWorkedMinutesByProject(Project project) {
+		int total = 0;
+		List<WorkPeriod> workPeriodsByProject = workUnitsByProject.get(project);
+		for (WorkPeriod workPeriod : workPeriodsByProject) {
+			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
+		}
+		return total;
+	}
+
+	public int getWorkedMinutesByMonthIntervalByProjectByEmployee(int startMonth, int finishMonth, Project project, Employee employee) {
+		int total = 0;
+		Predicate<WorkPeriod> dateMonthPredicate = createWorkPeriodPredicate(startMonth, finishMonth);
+		Predicate<WorkPeriod> employeePredicate = createWorkPeriodPredicate(employee);
+		List<WorkPeriod> workPeriodsByProject = workUnitsByProject.get(project);
+		List<WorkPeriod> workPeriodsByMonth = Lists.newArrayList(Collections2.filter(workPeriodsByProject, dateMonthPredicate));
+		List<WorkPeriod> workPeriodsByEmployee = Lists.newArrayList(Collections2.filter(workPeriodsByMonth, employeePredicate));
+		for (WorkPeriod workPeriod : workPeriodsByEmployee) {
+			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
+		}
+		return total;
+	}
+
+	public int getWorkedMinutesByProjectByEmployee(Project project, Employee employee) {
+		int total = 0;
+		Predicate<WorkPeriod> employeePredicate = createWorkPeriodPredicate(employee);
+		List<WorkPeriod> workPeriodsByProject = workUnitsByProject.get(project);
+		List<WorkPeriod> workPeriodsByEmployee = Lists.newArrayList(Collections2.filter(workPeriodsByProject, employeePredicate));
+		for (WorkPeriod workPeriod : workPeriodsByEmployee) {
 			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
 		}
 		return total;
