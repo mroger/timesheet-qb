@@ -11,6 +11,7 @@ import org.joda.time.LocalTime;
 import br.org.matrix.timesheet.project.Allocation;
 import br.org.matrix.timesheet.project.Client;
 import br.org.matrix.timesheet.project.Employee;
+import br.org.matrix.timesheet.project.Project;
 
 import com.google.common.base.Objects;
 
@@ -74,6 +75,10 @@ public class WorkPeriod {
 
 	public Client getClient() {
 		return allocation.getProject().getClient();
+	}
+
+	public Project getProject() {
+		return allocation.getProject();
 	}
 
 	/**
