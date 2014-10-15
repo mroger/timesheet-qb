@@ -11,13 +11,13 @@ import java.util.List;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import br.org.matrix.timesheet.project.Allocation;
 import br.org.matrix.timesheet.project.Client;
 import br.org.matrix.timesheet.project.DateIntervalOvelapsException;
 import br.org.matrix.timesheet.project.Employee;
+import br.org.matrix.timesheet.project.Project;
 
 public class WorkTest {
 
@@ -110,6 +110,30 @@ public class WorkTest {
 		List<WorkPeriod> workPeriods = workRepository.findByEmployee(employee1);
 		
 		assertTrue(workPeriods.contains(workedToday));
+	}
+
+	@Test
+	public void shouldFindStoredWorkPeriodByProject() {
+		LocalDate today = today();
+		
+		Allocation allocationClient1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		Allocation allocationClient2 = createAllocation(2, "emp02", 2, "project02", 2, "client02");
+		
+		WorkPeriod workedInterval1Client1 = new WorkPeriod(today, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Client1 = new WorkPeriod(today, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Client2 = new WorkPeriod(today, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Client2 = new WorkPeriod(today, time(13, 0), time(17, 0), allocationClient2);
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedInterval1Client1);
+		workRepository.store(workedInterval2Client1);
+		workRepository.store(workedInterval1Client2);
+		workRepository.store(workedInterval2Client2);
+		
+		List<WorkPeriod> workPeriods = workRepository.findByProject(new Project(2, "project02", new Client(2, "client02")));
+		assertThat(workPeriods.size(), equalTo(2));
+		assertTrue(workPeriods.contains(workedInterval1Client2));
+		assertTrue(workPeriods.contains(workedInterval2Client2));
 	}
 	
 	@Test
@@ -480,6 +504,16 @@ public class WorkTest {
 	}
 	
 	@Test
+	public void shouldFindWorkPeriodOfAnEmployeeInAGivenMonth() {
+		
+	}
+	
+	@Test
+	public void shouldFindWorkPeriodBetweenTwoMonths() {
+		
+	}
+	
+	@Test
 	public void shouldFindWorkPeriodOfAClientBetweenTwoMonths() {
 		LocalDate date1 = createDate(2000, 1, 1);
 		LocalDate date2 = createDate(2000, 1, 2);
@@ -574,6 +608,11 @@ public class WorkTest {
 		assertTrue(workPeriods.contains(workedInterval2Date7Client2));
 		assertTrue(workPeriods.contains(workedInterval1Date8Client2));
 		assertTrue(workPeriods.contains(workedInterval2Date8Client2));
+	}
+	
+	@Test
+	public void shouldFindWorkPeriodOfAnEmployeeBetweenTwoMonths() {
+		
 	}
 	
 	@Test
@@ -766,33 +805,633 @@ public class WorkTest {
 	}
 	
 	@Test
-	public void shouldReturnWorkedHoursInAMonth() {
+	public void shouldReturnWorkedHoursInAGivenMonth() {
+		LocalDate date1 = createDate(2000, 1, 1);
+		LocalDate date2 = createDate(2000, 1, 2);
+		LocalDate date3 = createDate(2000, 1, 3);
+		LocalDate date4 = createDate(2000, 2, 1);
+		LocalDate date5 = createDate(2000, 2, 2);
+		LocalDate date6 = createDate(2000, 2, 3);
 		
+		Allocation allocationClient1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		
+		WorkPeriod workedInterval1Date1Client1 = new WorkPeriod(date1, time(8, 11), time(12, 22), allocationClient1); // 251 min
+		WorkPeriod workedInterval2Date1Client1 = new WorkPeriod(date1, time(13, 13), time(17, 45), allocationClient1); // 272 min
+		WorkPeriod workedInterval1Date2Client1 = new WorkPeriod(date2, time(8, 18), time(12, 21), allocationClient1); // 243 min
+		WorkPeriod workedInterval2Date2Client1 = new WorkPeriod(date2, time(13, 3), time(17, 12), allocationClient1); // 249 min
+		WorkPeriod workedInterval1Date3Client1 = new WorkPeriod(date3, time(8, 8), time(12, 13), allocationClient1); // 245 min
+		WorkPeriod workedInterval2Date3Client1 = new WorkPeriod(date3, time(13, 6), time(17, 34), allocationClient1); // 268 min
+		WorkPeriod workedInterval1Date4Client1 = new WorkPeriod(date4, time(8, 21), time(12, 46), allocationClient1); // 265 min
+		WorkPeriod workedInterval2Date4Client1 = new WorkPeriod(date4, time(13, 24), time(17, 32), allocationClient1); // 248 min
+		WorkPeriod workedInterval1Date5Client1 = new WorkPeriod(date5, time(8, 2), time(12, 32), allocationClient1); // 270 min
+		WorkPeriod workedInterval2Date5Client1 = new WorkPeriod(date5, time(13, 5), time(17, 28), allocationClient1); // 263 min
+		WorkPeriod workedInterval1Date6Client1 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationClient1); // 272 min
+		WorkPeriod workedInterval2Date6Client1 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationClient1); // 265 min
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedInterval1Date1Client1);
+		workRepository.store(workedInterval2Date1Client1);
+		workRepository.store(workedInterval1Date2Client1);
+		workRepository.store(workedInterval2Date2Client1);
+		workRepository.store(workedInterval1Date3Client1);
+		workRepository.store(workedInterval2Date3Client1);
+		workRepository.store(workedInterval1Date4Client1);
+		workRepository.store(workedInterval2Date4Client1);
+		workRepository.store(workedInterval1Date5Client1);
+		workRepository.store(workedInterval2Date5Client1);
+		workRepository.store(workedInterval1Date6Client1);
+		workRepository.store(workedInterval2Date6Client1);
+		
+		int workMinutesByEmployee = workRepository.getWorkedMinutesByMonth(2);
+		
+		assertThat(workMinutesByEmployee, equalTo(1583));
 	}
 	
 	@Test
 	public void shouldReturnWorkedHoursInAMonthByAnEmployee() {
+		LocalDate date1 = createDate(2000, 1, 1);
+		LocalDate date2 = createDate(2000, 1, 2);
+		LocalDate date3 = createDate(2000, 1, 3);
+		LocalDate date4 = createDate(2000, 2, 1);
+		LocalDate date5 = createDate(2000, 2, 2);
+		LocalDate date6 = createDate(2000, 2, 3);
 		
+		Allocation allocationClient1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		Allocation allocationClient2 = createAllocation(2, "emp02", 2, "project02", 2, "client02");
+		
+		WorkPeriod workedInterval1Date1Client1 = new WorkPeriod(date1, time(8, 11), time(12, 22), allocationClient1); // 251 min
+		WorkPeriod workedInterval2Date1Client1 = new WorkPeriod(date1, time(13, 13), time(17, 45), allocationClient1); // 272 min
+		WorkPeriod workedInterval1Date2Client1 = new WorkPeriod(date2, time(8, 18), time(12, 21), allocationClient1); // 243 min
+		WorkPeriod workedInterval2Date2Client1 = new WorkPeriod(date2, time(13, 3), time(17, 12), allocationClient1); // 249 min
+		WorkPeriod workedInterval1Date3Client2 = new WorkPeriod(date3, time(8, 8), time(12, 13), allocationClient2); // 245 min
+		WorkPeriod workedInterval2Date3Client2 = new WorkPeriod(date3, time(13, 6), time(17, 34), allocationClient2); // 268 min
+		WorkPeriod workedInterval1Date4Client1 = new WorkPeriod(date4, time(8, 21), time(12, 46), allocationClient1); // 265 min
+		WorkPeriod workedInterval2Date4Client1 = new WorkPeriod(date4, time(13, 24), time(17, 32), allocationClient1); // 248 min
+		WorkPeriod workedInterval1Date5Client1 = new WorkPeriod(date5, time(8, 2), time(12, 32), allocationClient1); // 270 min
+		WorkPeriod workedInterval2Date5Client1 = new WorkPeriod(date5, time(13, 5), time(17, 28), allocationClient1); // 263 min
+		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationClient2); // 272 min
+		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationClient2); // 265 min
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedInterval1Date1Client1);
+		workRepository.store(workedInterval2Date1Client1);
+		workRepository.store(workedInterval1Date2Client1);
+		workRepository.store(workedInterval2Date2Client1);
+		workRepository.store(workedInterval1Date3Client2);
+		workRepository.store(workedInterval2Date3Client2);
+		workRepository.store(workedInterval1Date4Client1);
+		workRepository.store(workedInterval2Date4Client1);
+		workRepository.store(workedInterval1Date5Client1);
+		workRepository.store(workedInterval2Date5Client1);
+		workRepository.store(workedInterval1Date6Client2);
+		workRepository.store(workedInterval2Date6Client2);
+		
+		int workMinutesByEmployee = workRepository.getWorkedMinutesByMonthByEmployee(2, new Employee(2, "emp02"));
+		
+		assertThat(workMinutesByEmployee, equalTo(537));
+	}
+	
+	@Test
+	public void shouldReturnWorkedHoursInAMonthInAClient() {
+		LocalDate date1 = createDate(2000, 1, 1);
+		LocalDate date2 = createDate(2000, 1, 2);
+		LocalDate date3 = createDate(2000, 1, 3);
+		LocalDate date4 = createDate(2000, 2, 1);
+		LocalDate date5 = createDate(2000, 2, 2);
+		LocalDate date6 = createDate(2000, 2, 3);
+		
+		Allocation allocationClient1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		Allocation allocationClient2 = createAllocation(2, "emp02", 2, "project02", 2, "client02");
+		
+		WorkPeriod workedInterval1Date1Client1 = new WorkPeriod(date1, time(8, 11), time(12, 22), allocationClient1); // 251 min
+		WorkPeriod workedInterval2Date1Client1 = new WorkPeriod(date1, time(13, 13), time(17, 45), allocationClient1); // 272 min
+		WorkPeriod workedInterval1Date2Client1 = new WorkPeriod(date2, time(8, 18), time(12, 21), allocationClient1); // 243 min
+		WorkPeriod workedInterval2Date2Client1 = new WorkPeriod(date2, time(13, 3), time(17, 12), allocationClient1); // 249 min
+		WorkPeriod workedInterval1Date3Client2 = new WorkPeriod(date3, time(8, 8), time(12, 13), allocationClient2); // 245 min
+		WorkPeriod workedInterval2Date3Client2 = new WorkPeriod(date3, time(13, 6), time(17, 34), allocationClient2); // 268 min
+		WorkPeriod workedInterval1Date4Client1 = new WorkPeriod(date4, time(8, 21), time(12, 46), allocationClient1); // 265 min
+		WorkPeriod workedInterval2Date4Client1 = new WorkPeriod(date4, time(13, 24), time(17, 32), allocationClient1); // 248 min
+		WorkPeriod workedInterval1Date5Client1 = new WorkPeriod(date5, time(8, 2), time(12, 32), allocationClient1); // 270 min
+		WorkPeriod workedInterval2Date5Client1 = new WorkPeriod(date5, time(13, 5), time(17, 28), allocationClient1); // 263 min
+		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationClient2); // 272 min
+		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationClient2); // 265 min
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedInterval1Date1Client1);
+		workRepository.store(workedInterval2Date1Client1);
+		workRepository.store(workedInterval1Date2Client1);
+		workRepository.store(workedInterval2Date2Client1);
+		workRepository.store(workedInterval1Date3Client2);
+		workRepository.store(workedInterval2Date3Client2);
+		workRepository.store(workedInterval1Date4Client1);
+		workRepository.store(workedInterval2Date4Client1);
+		workRepository.store(workedInterval1Date5Client1);
+		workRepository.store(workedInterval2Date5Client1);
+		workRepository.store(workedInterval1Date6Client2);
+		workRepository.store(workedInterval2Date6Client2);
+		
+		int workMinutesByEmployee = workRepository.getWorkedMinutesByMonthByClient(2, new Client(1, "client01"));
+		
+		assertThat(workMinutesByEmployee, equalTo(1046));
+	}
+	
+	@Test
+	public void shouldReturnWorkedHoursInAMonthByAnEmployeeInAClient() {
+		LocalDate date1 = createDate(2000, 1, 1);
+		LocalDate date2 = createDate(2000, 1, 2);
+		LocalDate date3 = createDate(2000, 1, 3);
+		LocalDate date4 = createDate(2000, 2, 1);
+		LocalDate date5 = createDate(2000, 2, 2);
+		LocalDate date6 = createDate(2000, 2, 3);
+		
+		Allocation allocationEmployee1Client1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		Allocation allocationEmployee1Client2 = createAllocation(1, "emp01", 2, "project02", 2, "client02");
+		Allocation allocationEmployee2Client1 = createAllocation(2, "emp02", 3, "project03", 1, "client01");
+		Allocation allocationEmployee2Client2 = createAllocation(2, "emp02", 4, "project04", 2, "client02");
+		
+		WorkPeriod workedInterval1Date1Client1 = new WorkPeriod(date1, time(8, 11), time(12, 22), allocationEmployee1Client1); // 251 min
+		WorkPeriod workedInterval2Date1Client1 = new WorkPeriod(date1, time(13, 13), time(17, 45), allocationEmployee1Client1); // 272 min
+		WorkPeriod workedInterval1Date2Client1 = new WorkPeriod(date2, time(8, 18), time(12, 21), allocationEmployee2Client1); // 243 min
+		WorkPeriod workedInterval2Date2Client1 = new WorkPeriod(date2, time(13, 3), time(17, 12), allocationEmployee2Client1); // 249 min
+		WorkPeriod workedInterval1Date3Client2 = new WorkPeriod(date3, time(8, 8), time(12, 13), allocationEmployee1Client2); // 245 min
+		WorkPeriod workedInterval2Date3Client2 = new WorkPeriod(date3, time(13, 6), time(17, 34), allocationEmployee1Client2); // 268 min
+		WorkPeriod workedInterval1Date4Client1 = new WorkPeriod(date4, time(8, 21), time(12, 46), allocationEmployee1Client1); // 265 min
+		WorkPeriod workedInterval2Date4Client1 = new WorkPeriod(date4, time(13, 24), time(17, 32), allocationEmployee1Client1); // 248 min
+		WorkPeriod workedInterval1Date5Client1 = new WorkPeriod(date5, time(8, 2), time(12, 32), allocationEmployee2Client1); // 270 min
+		WorkPeriod workedInterval2Date5Client1 = new WorkPeriod(date5, time(13, 5), time(17, 28), allocationEmployee2Client1); // 263 min
+		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationEmployee2Client2); // 272 min
+		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationEmployee2Client2); // 265 min
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedInterval1Date1Client1);
+		workRepository.store(workedInterval2Date1Client1);
+		workRepository.store(workedInterval1Date2Client1);
+		workRepository.store(workedInterval2Date2Client1);
+		workRepository.store(workedInterval1Date3Client2);
+		workRepository.store(workedInterval2Date3Client2);
+		workRepository.store(workedInterval1Date4Client1);
+		workRepository.store(workedInterval2Date4Client1);
+		workRepository.store(workedInterval1Date5Client1);
+		workRepository.store(workedInterval2Date5Client1);
+		workRepository.store(workedInterval1Date6Client2);
+		workRepository.store(workedInterval2Date6Client2);
+		
+		int workMinutesByEmployee = workRepository.getWorkedMinutesByMonthByClientByEmployee(2, new Client(1, "client01"), new Employee(2, "emp02"));
+		
+		assertThat(workMinutesByEmployee, equalTo(533));
 	}
 	
 	@Test
 	public void shouldReturnWorkedHoursBetweenTwoMonths() {
+		LocalDate date1 = createDate(2000, 1, 1);
+		LocalDate date2 = createDate(2000, 1, 2);
+		LocalDate date3 = createDate(2000, 2, 1);
+		LocalDate date4 = createDate(2000, 2, 2);
+		LocalDate date5 = createDate(2000, 3, 1);
+		LocalDate date6 = createDate(2000, 3, 2);
 		
+		Allocation allocationClient1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		
+		WorkPeriod workedInterval1Date1Client1 = new WorkPeriod(date1, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date1Client1 = new WorkPeriod(date1, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date2Client1 = new WorkPeriod(date2, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date2Client1 = new WorkPeriod(date2, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date3Client1 = new WorkPeriod(date3, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date3Client1 = new WorkPeriod(date3, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date4Client1 = new WorkPeriod(date4, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date4Client1 = new WorkPeriod(date4, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date5Client1 = new WorkPeriod(date5, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date5Client1 = new WorkPeriod(date5, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date6Client1 = new WorkPeriod(date6, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date6Client1 = new WorkPeriod(date6, time(13, 0), time(17, 0), allocationClient1);
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedInterval1Date1Client1);
+		workRepository.store(workedInterval2Date1Client1);
+		workRepository.store(workedInterval1Date2Client1);
+		workRepository.store(workedInterval2Date2Client1);
+		workRepository.store(workedInterval1Date3Client1);
+		workRepository.store(workedInterval2Date3Client1);
+		workRepository.store(workedInterval1Date4Client1);
+		workRepository.store(workedInterval2Date4Client1);
+		workRepository.store(workedInterval1Date5Client1);
+		workRepository.store(workedInterval2Date5Client1);
+		workRepository.store(workedInterval1Date6Client1);
+		workRepository.store(workedInterval2Date6Client1);
+		
+		int workMinutesByEmployee = workRepository.getWorkedMinutesByMonthInterval(2, 3);
+		
+		assertThat(workMinutesByEmployee, equalTo(1920));
 	}
 	
 	@Test
 	public void shouldReturnWorkedHoursBetweenTwoMonthsByAnEmployee() {
+		LocalDate date1 = createDate(2000, 1, 1);
+		LocalDate date2 = createDate(2000, 1, 2);
+		LocalDate date3 = createDate(2000, 2, 1);
+		LocalDate date4 = createDate(2000, 2, 2);
+		LocalDate date5 = createDate(2000, 3, 1);
+		LocalDate date6 = createDate(2000, 3, 2);
 		
+		Allocation allocationClient1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		Allocation allocationClient2 = createAllocation(2, "emp02", 2, "project02", 2, "client02");
+		
+		WorkPeriod workedInterval1Date1Client1 = new WorkPeriod(date1, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date1Client1 = new WorkPeriod(date1, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date2Client2 = new WorkPeriod(date2, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date2Client2 = new WorkPeriod(date2, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date3Client1 = new WorkPeriod(date3, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date3Client1 = new WorkPeriod(date3, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date4Client2 = new WorkPeriod(date4, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date4Client2 = new WorkPeriod(date4, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date5Client1 = new WorkPeriod(date5, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date5Client1 = new WorkPeriod(date5, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 0), time(17, 0), allocationClient2);
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedInterval1Date1Client1);
+		workRepository.store(workedInterval2Date1Client1);
+		workRepository.store(workedInterval1Date2Client2);
+		workRepository.store(workedInterval2Date2Client2);
+		workRepository.store(workedInterval1Date3Client1);
+		workRepository.store(workedInterval2Date3Client1);
+		workRepository.store(workedInterval1Date4Client2);
+		workRepository.store(workedInterval2Date4Client2);
+		workRepository.store(workedInterval1Date5Client1);
+		workRepository.store(workedInterval2Date5Client1);
+		workRepository.store(workedInterval1Date6Client2);
+		workRepository.store(workedInterval2Date6Client2);
+		
+		int workMinutesByEmployee = workRepository.getWorkedMinutesByMonthIntervalByEmployee(2, 3, new Employee(2, "emp02"));
+		
+		assertThat(workMinutesByEmployee, equalTo(960));
+	}
+	
+	@Test
+	public void shouldReturnWorkedHoursBetweenTwoMonthsInAClient() {
+		LocalDate date1 = createDate(2000, 1, 1);
+		LocalDate date2 = createDate(2000, 1, 2);
+		LocalDate date3 = createDate(2000, 2, 1);
+		LocalDate date4 = createDate(2000, 2, 2);
+		LocalDate date5 = createDate(2000, 3, 1);
+		LocalDate date6 = createDate(2000, 3, 2);
+		
+		Allocation allocationClient1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		Allocation allocationClient2 = createAllocation(2, "emp02", 2, "project02", 2, "client02");
+		
+		WorkPeriod workedInterval1Date1Client1 = new WorkPeriod(date1, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date1Client1 = new WorkPeriod(date1, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date2Client1 = new WorkPeriod(date2, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date2Client1 = new WorkPeriod(date2, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date3Client1 = new WorkPeriod(date3, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date3Client1 = new WorkPeriod(date3, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date4Client2 = new WorkPeriod(date4, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date4Client2 = new WorkPeriod(date4, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date5Client1 = new WorkPeriod(date5, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date5Client1 = new WorkPeriod(date5, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 0), time(17, 0), allocationClient2);
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedInterval1Date1Client1);
+		workRepository.store(workedInterval2Date1Client1);
+		workRepository.store(workedInterval1Date2Client1);
+		workRepository.store(workedInterval2Date2Client1);
+		workRepository.store(workedInterval1Date3Client1);
+		workRepository.store(workedInterval2Date3Client1);
+		workRepository.store(workedInterval1Date4Client2);
+		workRepository.store(workedInterval2Date4Client2);
+		workRepository.store(workedInterval1Date5Client1);
+		workRepository.store(workedInterval2Date5Client1);
+		workRepository.store(workedInterval1Date6Client2);
+		workRepository.store(workedInterval2Date6Client2);
+		
+		int workMinutesByEmployee = workRepository.getWorkedMinutesByMonthIntervalByClient(1, 2, new Client(2, "emp02"));
+		
+		assertThat(workMinutesByEmployee, equalTo(480));
+	}
+	
+	@Test
+	public void shouldReturnWorkedHoursBetweenTwoMonthsByAnEmployeeInAClient() {
+		LocalDate date1 = createDate(2000, 1, 1);
+		LocalDate date2 = createDate(2000, 1, 2);
+		LocalDate date3 = createDate(2000, 2, 1);
+		LocalDate date4 = createDate(2000, 2, 2);
+		LocalDate date5 = createDate(2000, 3, 1);
+		LocalDate date6 = createDate(2000, 3, 2);
+		
+		Allocation allocationEmployee1Client1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		Allocation allocationEmployee1Client2 = createAllocation(1, "emp01", 2, "project02", 2, "client02");
+		Allocation allocationEmployee2Client1 = createAllocation(2, "emp02", 3, "project03", 1, "client01");
+		Allocation allocationEmployee2Client2 = createAllocation(2, "emp02", 4, "project04", 2, "client02");
+		
+		WorkPeriod workedInterval1Date1Client1 = new WorkPeriod(date1, time(8, 11), time(12, 22), allocationEmployee1Client1); // 251 min
+		WorkPeriod workedInterval2Date1Client1 = new WorkPeriod(date1, time(13, 13), time(17, 45), allocationEmployee1Client1); // 272 min
+		WorkPeriod workedInterval1Date2Client1 = new WorkPeriod(date2, time(8, 18), time(12, 21), allocationEmployee2Client1); // 243 min
+		WorkPeriod workedInterval2Date2Client1 = new WorkPeriod(date2, time(13, 3), time(17, 12), allocationEmployee2Client1); // 249 min
+		WorkPeriod workedInterval1Date3Client2 = new WorkPeriod(date3, time(8, 8), time(12, 13), allocationEmployee1Client2); // 245 min
+		WorkPeriod workedInterval2Date3Client2 = new WorkPeriod(date3, time(13, 6), time(17, 34), allocationEmployee1Client2); // 268 min
+		WorkPeriod workedInterval1Date4Client1 = new WorkPeriod(date4, time(8, 21), time(12, 46), allocationEmployee1Client1); // 265 min
+		WorkPeriod workedInterval2Date4Client1 = new WorkPeriod(date4, time(13, 24), time(17, 32), allocationEmployee1Client1); // 248 min
+		WorkPeriod workedInterval1Date5Client1 = new WorkPeriod(date5, time(8, 2), time(12, 32), allocationEmployee2Client1); // 270 min
+		WorkPeriod workedInterval2Date5Client1 = new WorkPeriod(date5, time(13, 5), time(17, 28), allocationEmployee2Client1); // 263 min
+		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationEmployee2Client2); // 272 min
+		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationEmployee2Client2); // 265 min
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedInterval1Date1Client1);
+		workRepository.store(workedInterval2Date1Client1);
+		workRepository.store(workedInterval1Date2Client1);
+		workRepository.store(workedInterval2Date2Client1);
+		workRepository.store(workedInterval1Date3Client2);
+		workRepository.store(workedInterval2Date3Client2);
+		workRepository.store(workedInterval1Date4Client1);
+		workRepository.store(workedInterval2Date4Client1);
+		workRepository.store(workedInterval1Date5Client1);
+		workRepository.store(workedInterval2Date5Client1);
+		workRepository.store(workedInterval1Date6Client2);
+		workRepository.store(workedInterval2Date6Client2);
+		
+		int workMinutesByEmployee = workRepository.getWorkedMinutesByMonthIntervalByClientByEmployee(2, 3, new Client(1, "client01"), new Employee(2, "emp02"));
+		
+		assertThat(workMinutesByEmployee, equalTo(533));
 	}
 	
 	@Test
 	public void shouldReturnWorkedHoursInAProject() {
+		LocalDate date1 = createDate(2000, 1, 1);
+		LocalDate date2 = createDate(2000, 1, 2);
+		LocalDate date3 = createDate(2000, 2, 1);
+		LocalDate date4 = createDate(2000, 2, 2);
+		LocalDate date5 = createDate(2000, 3, 1);
+		LocalDate date6 = createDate(2000, 3, 2);
 		
+		Allocation allocationEmployee1Client1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		Allocation allocationEmployee1Client2 = createAllocation(1, "emp01", 2, "project02", 2, "client02");
+		Allocation allocationEmployee2Client1 = createAllocation(2, "emp02", 3, "project03", 1, "client01");
+		Allocation allocationEmployee2Client2 = createAllocation(2, "emp02", 4, "project04", 2, "client02");
+		
+		WorkPeriod workedInterval1Date1Client1 = new WorkPeriod(date1, time(8, 11), time(12, 22), allocationEmployee1Client1); // 251 min
+		WorkPeriod workedInterval2Date1Client1 = new WorkPeriod(date1, time(13, 13), time(17, 45), allocationEmployee1Client1); // 272 min
+		WorkPeriod workedInterval1Date2Client1 = new WorkPeriod(date2, time(8, 18), time(12, 21), allocationEmployee2Client1); // 243 min
+		WorkPeriod workedInterval2Date2Client1 = new WorkPeriod(date2, time(13, 3), time(17, 12), allocationEmployee2Client1); // 249 min
+		WorkPeriod workedInterval1Date3Client2 = new WorkPeriod(date3, time(8, 8), time(12, 13), allocationEmployee1Client2); // 245 min
+		WorkPeriod workedInterval2Date3Client2 = new WorkPeriod(date3, time(13, 6), time(17, 34), allocationEmployee1Client2); // 268 min
+		WorkPeriod workedInterval1Date4Client1 = new WorkPeriod(date4, time(8, 21), time(12, 46), allocationEmployee1Client1); // 265 min
+		WorkPeriod workedInterval2Date4Client1 = new WorkPeriod(date4, time(13, 24), time(17, 32), allocationEmployee1Client1); // 248 min
+		WorkPeriod workedInterval1Date5Client1 = new WorkPeriod(date5, time(8, 2), time(12, 32), allocationEmployee2Client1); // 270 min
+		WorkPeriod workedInterval2Date5Client1 = new WorkPeriod(date5, time(13, 5), time(17, 28), allocationEmployee2Client1); // 263 min
+		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationEmployee2Client2); // 272 min
+		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationEmployee2Client2); // 265 min
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedInterval1Date1Client1);
+		workRepository.store(workedInterval2Date1Client1);
+		workRepository.store(workedInterval1Date2Client1);
+		workRepository.store(workedInterval2Date2Client1);
+		workRepository.store(workedInterval1Date3Client2);
+		workRepository.store(workedInterval2Date3Client2);
+		workRepository.store(workedInterval1Date4Client1);
+		workRepository.store(workedInterval2Date4Client1);
+		workRepository.store(workedInterval1Date5Client1);
+		workRepository.store(workedInterval2Date5Client1);
+		workRepository.store(workedInterval1Date6Client2);
+		workRepository.store(workedInterval2Date6Client2);
+		
+		int workMinutesByEmployee = workRepository.getWorkedMinutesByProject(new Project(3, "project03", new Client(1, "client01")));
+		
+		assertThat(workMinutesByEmployee, equalTo(1025));
+	}
+	
+	@Test
+	public void shouldReturnWorkedHoursBetweenTwoMonthsInAProject() {
+		LocalDate date1 = createDate(2000, 1, 1);
+		LocalDate date2 = createDate(2000, 1, 2);
+		LocalDate date3 = createDate(2000, 2, 1);
+		LocalDate date4 = createDate(2000, 2, 2);
+		LocalDate date5 = createDate(2000, 3, 1);
+		LocalDate date6 = createDate(2000, 3, 2);
+		
+		Allocation allocationEmployee1Client1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		Allocation allocationEmployee1Client2 = createAllocation(1, "emp01", 2, "project02", 2, "client02");
+		Allocation allocationEmployee2Client1 = createAllocation(2, "emp02", 3, "project03", 1, "client01");
+		Allocation allocationEmployee2Client2 = createAllocation(2, "emp02", 4, "project04", 2, "client02");
+		
+		WorkPeriod workedInterval1Date1Client1 = new WorkPeriod(date1, time(8, 11), time(12, 22), allocationEmployee1Client1); // 251 min
+		WorkPeriod workedInterval2Date1Client1 = new WorkPeriod(date1, time(13, 13), time(17, 45), allocationEmployee1Client1); // 272 min
+		WorkPeriod workedInterval1Date2Client1 = new WorkPeriod(date2, time(8, 18), time(12, 21), allocationEmployee2Client1); // 243 min
+		WorkPeriod workedInterval2Date2Client1 = new WorkPeriod(date2, time(13, 3), time(17, 12), allocationEmployee2Client1); // 249 min
+		WorkPeriod workedInterval1Date3Client2 = new WorkPeriod(date3, time(8, 8), time(12, 13), allocationEmployee1Client2); // 245 min
+		WorkPeriod workedInterval2Date3Client2 = new WorkPeriod(date3, time(13, 6), time(17, 34), allocationEmployee1Client2); // 268 min
+		WorkPeriod workedInterval1Date4Client1 = new WorkPeriod(date4, time(8, 21), time(12, 46), allocationEmployee1Client1); // 265 min
+		WorkPeriod workedInterval2Date4Client1 = new WorkPeriod(date4, time(13, 24), time(17, 32), allocationEmployee1Client1); // 248 min
+		WorkPeriod workedInterval1Date5Client1 = new WorkPeriod(date5, time(8, 2), time(12, 32), allocationEmployee2Client1); // 270 min
+		WorkPeriod workedInterval2Date5Client1 = new WorkPeriod(date5, time(13, 5), time(17, 28), allocationEmployee2Client1); // 263 min
+		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationEmployee2Client2); // 272 min
+		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationEmployee2Client2); // 265 min
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedInterval1Date1Client1);
+		workRepository.store(workedInterval2Date1Client1);
+		workRepository.store(workedInterval1Date2Client1);
+		workRepository.store(workedInterval2Date2Client1);
+		workRepository.store(workedInterval1Date3Client2);
+		workRepository.store(workedInterval2Date3Client2);
+		workRepository.store(workedInterval1Date4Client1);
+		workRepository.store(workedInterval2Date4Client1);
+		workRepository.store(workedInterval1Date5Client1);
+		workRepository.store(workedInterval2Date5Client1);
+		workRepository.store(workedInterval1Date6Client2);
+		workRepository.store(workedInterval2Date6Client2);
+		
+		int workMinutesByEmployee = workRepository.getWorkedMinutesByMonthIntervalByProject(2, 3, new Project(3, "project03", new Client(1, "client01")));
+		
+		assertThat(workMinutesByEmployee, equalTo(533));
 	}
 	
 	@Test
 	public void shouldReturnWorkedHoursInAProjectByAnEmployee() {
+		LocalDate date1 = createDate(2000, 1, 1);
+		LocalDate date2 = createDate(2000, 1, 2);
+		LocalDate date3 = createDate(2000, 2, 1);
+		LocalDate date4 = createDate(2000, 2, 2);
+		LocalDate date5 = createDate(2000, 3, 1);
+		LocalDate date6 = createDate(2000, 3, 2);
 		
+		Allocation allocationEmployee1Client1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		Allocation allocationEmployee1Client2 = createAllocation(1, "emp01", 2, "project02", 2, "client02");
+		Allocation allocationEmployee2Client1 = createAllocation(2, "emp02", 3, "project03", 1, "client01");
+		Allocation allocationEmployee2Client2 = createAllocation(2, "emp02", 4, "project04", 2, "client02");
+		
+		WorkPeriod workedInterval1Date1Client1 = new WorkPeriod(date1, time(8, 11), time(12, 22), allocationEmployee1Client1); // 251 min
+		WorkPeriod workedInterval2Date1Client1 = new WorkPeriod(date1, time(13, 13), time(17, 45), allocationEmployee1Client1); // 272 min
+		WorkPeriod workedInterval1Date2Client1 = new WorkPeriod(date2, time(8, 18), time(12, 21), allocationEmployee2Client1); // 243 min
+		WorkPeriod workedInterval2Date2Client1 = new WorkPeriod(date2, time(13, 3), time(17, 12), allocationEmployee2Client1); // 249 min
+		WorkPeriod workedInterval1Date3Client2 = new WorkPeriod(date3, time(8, 8), time(12, 13), allocationEmployee1Client2); // 245 min
+		WorkPeriod workedInterval2Date3Client2 = new WorkPeriod(date3, time(13, 6), time(17, 34), allocationEmployee1Client2); // 268 min
+		WorkPeriod workedInterval1Date4Client1 = new WorkPeriod(date4, time(8, 21), time(12, 46), allocationEmployee1Client1); // 265 min
+		WorkPeriod workedInterval2Date4Client1 = new WorkPeriod(date4, time(13, 24), time(17, 32), allocationEmployee1Client1); // 248 min
+		WorkPeriod workedInterval1Date5Client1 = new WorkPeriod(date5, time(8, 2), time(12, 32), allocationEmployee2Client1); // 270 min
+		WorkPeriod workedInterval2Date5Client1 = new WorkPeriod(date5, time(13, 5), time(17, 28), allocationEmployee2Client1); // 263 min
+		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationEmployee2Client2); // 272 min
+		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationEmployee2Client2); // 265 min
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedInterval1Date1Client1);
+		workRepository.store(workedInterval2Date1Client1);
+		workRepository.store(workedInterval1Date2Client1);
+		workRepository.store(workedInterval2Date2Client1);
+		workRepository.store(workedInterval1Date3Client2);
+		workRepository.store(workedInterval2Date3Client2);
+		workRepository.store(workedInterval1Date4Client1);
+		workRepository.store(workedInterval2Date4Client1);
+		workRepository.store(workedInterval1Date5Client1);
+		workRepository.store(workedInterval2Date5Client1);
+		workRepository.store(workedInterval1Date6Client2);
+		workRepository.store(workedInterval2Date6Client2);
+		
+		int workMinutesByEmployee = workRepository.getWorkedMinutesByProjectByEmployee(new Project(3, "project03", new Client(2, "client02")), new Employee(2, "emp02"));
+		
+		assertThat(workMinutesByEmployee, equalTo(1025));
+	}
+	
+	@Test
+	public void shouldReturnZeroWorkedHoursInAProjectByAnEmployee() {
+		LocalDate date1 = createDate(2000, 1, 1);
+		LocalDate date2 = createDate(2000, 1, 2);
+		LocalDate date3 = createDate(2000, 2, 1);
+		LocalDate date4 = createDate(2000, 2, 2);
+		LocalDate date5 = createDate(2000, 3, 1);
+		LocalDate date6 = createDate(2000, 3, 2);
+		
+		Allocation allocationEmployee1Client1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		Allocation allocationEmployee1Client2 = createAllocation(1, "emp01", 2, "project02", 2, "client02");
+		Allocation allocationEmployee2Client1 = createAllocation(2, "emp02", 3, "project03", 1, "client01");
+		Allocation allocationEmployee2Client2 = createAllocation(2, "emp02", 4, "project04", 2, "client02");
+		
+		WorkPeriod workedInterval1Date1Client1 = new WorkPeriod(date1, time(8, 11), time(12, 22), allocationEmployee1Client1); // 251 min
+		WorkPeriod workedInterval2Date1Client1 = new WorkPeriod(date1, time(13, 13), time(17, 45), allocationEmployee1Client1); // 272 min
+		WorkPeriod workedInterval1Date2Client1 = new WorkPeriod(date2, time(8, 18), time(12, 21), allocationEmployee2Client1); // 243 min
+		WorkPeriod workedInterval2Date2Client1 = new WorkPeriod(date2, time(13, 3), time(17, 12), allocationEmployee2Client1); // 249 min
+		WorkPeriod workedInterval1Date3Client2 = new WorkPeriod(date3, time(8, 8), time(12, 13), allocationEmployee1Client2); // 245 min
+		WorkPeriod workedInterval2Date3Client2 = new WorkPeriod(date3, time(13, 6), time(17, 34), allocationEmployee1Client2); // 268 min
+		WorkPeriod workedInterval1Date4Client1 = new WorkPeriod(date4, time(8, 21), time(12, 46), allocationEmployee1Client1); // 265 min
+		WorkPeriod workedInterval2Date4Client1 = new WorkPeriod(date4, time(13, 24), time(17, 32), allocationEmployee1Client1); // 248 min
+		WorkPeriod workedInterval1Date5Client1 = new WorkPeriod(date5, time(8, 2), time(12, 32), allocationEmployee2Client1); // 270 min
+		WorkPeriod workedInterval2Date5Client1 = new WorkPeriod(date5, time(13, 5), time(17, 28), allocationEmployee2Client1); // 263 min
+		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationEmployee2Client2); // 272 min
+		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationEmployee2Client2); // 265 min
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedInterval1Date1Client1);
+		workRepository.store(workedInterval2Date1Client1);
+		workRepository.store(workedInterval1Date2Client1);
+		workRepository.store(workedInterval2Date2Client1);
+		workRepository.store(workedInterval1Date3Client2);
+		workRepository.store(workedInterval2Date3Client2);
+		workRepository.store(workedInterval1Date4Client1);
+		workRepository.store(workedInterval2Date4Client1);
+		workRepository.store(workedInterval1Date5Client1);
+		workRepository.store(workedInterval2Date5Client1);
+		workRepository.store(workedInterval1Date6Client2);
+		workRepository.store(workedInterval2Date6Client2);
+		
+		int workMinutesByEmployee = workRepository.getWorkedMinutesByProjectByEmployee(new Project(3, "project03", new Client(2, "client02")), new Employee(1, "emp01"));
+		
+		assertThat(workMinutesByEmployee, equalTo(0));
+	}
+	
+	@Test
+	public void shouldReturnWorkedHoursBetweenTwoMonthsInAProjectByAnEmployee() {
+		LocalDate date1 = createDate(2000, 1, 1);
+		LocalDate date2 = createDate(2000, 1, 2);
+		LocalDate date3 = createDate(2000, 2, 1);
+		LocalDate date4 = createDate(2000, 2, 2);
+		LocalDate date5 = createDate(2000, 3, 1);
+		LocalDate date6 = createDate(2000, 3, 2);
+		
+		Allocation allocationEmployee1Client1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		Allocation allocationEmployee1Client2 = createAllocation(1, "emp01", 2, "project02", 2, "client02");
+		Allocation allocationEmployee2Client1 = createAllocation(2, "emp02", 3, "project03", 1, "client01");
+		Allocation allocationEmployee2Client2 = createAllocation(2, "emp02", 4, "project04", 2, "client02");
+		
+		WorkPeriod workedInterval1Date1Client1 = new WorkPeriod(date1, time(8, 11), time(12, 22), allocationEmployee1Client1); // 251 min
+		WorkPeriod workedInterval2Date1Client1 = new WorkPeriod(date1, time(13, 13), time(17, 45), allocationEmployee1Client1); // 272 min
+		WorkPeriod workedInterval1Date2Client1 = new WorkPeriod(date2, time(8, 18), time(12, 21), allocationEmployee2Client1); // 243 min
+		WorkPeriod workedInterval2Date2Client1 = new WorkPeriod(date2, time(13, 3), time(17, 12), allocationEmployee2Client1); // 249 min
+		WorkPeriod workedInterval1Date3Client2 = new WorkPeriod(date3, time(8, 8), time(12, 13), allocationEmployee1Client2); // 245 min
+		WorkPeriod workedInterval2Date3Client2 = new WorkPeriod(date3, time(13, 6), time(17, 34), allocationEmployee1Client2); // 268 min
+		WorkPeriod workedInterval1Date4Client1 = new WorkPeriod(date4, time(8, 21), time(12, 46), allocationEmployee1Client1); // 265 min
+		WorkPeriod workedInterval2Date4Client1 = new WorkPeriod(date4, time(13, 24), time(17, 32), allocationEmployee1Client1); // 248 min
+		WorkPeriod workedInterval1Date5Client1 = new WorkPeriod(date5, time(8, 2), time(12, 32), allocationEmployee2Client1); // 270 min
+		WorkPeriod workedInterval2Date5Client1 = new WorkPeriod(date5, time(13, 5), time(17, 28), allocationEmployee2Client1); // 263 min
+		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationEmployee2Client2); // 272 min
+		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationEmployee2Client2); // 265 min
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedInterval1Date1Client1);
+		workRepository.store(workedInterval2Date1Client1);
+		workRepository.store(workedInterval1Date2Client1);
+		workRepository.store(workedInterval2Date2Client1);
+		workRepository.store(workedInterval1Date3Client2);
+		workRepository.store(workedInterval2Date3Client2);
+		workRepository.store(workedInterval1Date4Client1);
+		workRepository.store(workedInterval2Date4Client1);
+		workRepository.store(workedInterval1Date5Client1);
+		workRepository.store(workedInterval2Date5Client1);
+		workRepository.store(workedInterval1Date6Client2);
+		workRepository.store(workedInterval2Date6Client2);
+		
+		int workMinutesByEmployee = workRepository.getWorkedMinutesByMonthIntervalByProjectByEmployee(2, 3, new Project(3, "project03", new Client(2, "client02")), new Employee(2, "emp02"));
+		
+		assertThat(workMinutesByEmployee, equalTo(533));
+	}
+	
+	@Test
+	public void shouldReturnZeroWorkedHoursBetweenTwoMonthsInAProjectByAnEmployee() {
+		LocalDate date1 = createDate(2000, 1, 1);
+		LocalDate date2 = createDate(2000, 1, 2);
+		LocalDate date3 = createDate(2000, 2, 1);
+		LocalDate date4 = createDate(2000, 2, 2);
+		LocalDate date5 = createDate(2000, 3, 1);
+		LocalDate date6 = createDate(2000, 3, 2);
+		
+		Allocation allocationEmployee1Client1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		Allocation allocationEmployee1Client2 = createAllocation(1, "emp01", 2, "project02", 2, "client02");
+		Allocation allocationEmployee2Client1 = createAllocation(2, "emp02", 3, "project03", 1, "client01");
+		Allocation allocationEmployee2Client2 = createAllocation(2, "emp02", 4, "project04", 2, "client02");
+		
+		WorkPeriod workedInterval1Date1Client1 = new WorkPeriod(date1, time(8, 11), time(12, 22), allocationEmployee1Client1); // 251 min
+		WorkPeriod workedInterval2Date1Client1 = new WorkPeriod(date1, time(13, 13), time(17, 45), allocationEmployee1Client1); // 272 min
+		WorkPeriod workedInterval1Date2Client1 = new WorkPeriod(date2, time(8, 18), time(12, 21), allocationEmployee2Client1); // 243 min
+		WorkPeriod workedInterval2Date2Client1 = new WorkPeriod(date2, time(13, 3), time(17, 12), allocationEmployee2Client1); // 249 min
+		WorkPeriod workedInterval1Date3Client2 = new WorkPeriod(date3, time(8, 8), time(12, 13), allocationEmployee1Client2); // 245 min
+		WorkPeriod workedInterval2Date3Client2 = new WorkPeriod(date3, time(13, 6), time(17, 34), allocationEmployee1Client2); // 268 min
+		WorkPeriod workedInterval1Date4Client1 = new WorkPeriod(date4, time(8, 21), time(12, 46), allocationEmployee1Client1); // 265 min
+		WorkPeriod workedInterval2Date4Client1 = new WorkPeriod(date4, time(13, 24), time(17, 32), allocationEmployee1Client1); // 248 min
+		WorkPeriod workedInterval1Date5Client1 = new WorkPeriod(date5, time(8, 2), time(12, 32), allocationEmployee2Client1); // 270 min
+		WorkPeriod workedInterval2Date5Client1 = new WorkPeriod(date5, time(13, 5), time(17, 28), allocationEmployee2Client1); // 263 min
+		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationEmployee2Client2); // 272 min
+		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationEmployee2Client2); // 265 min
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedInterval1Date1Client1);
+		workRepository.store(workedInterval2Date1Client1);
+		workRepository.store(workedInterval1Date2Client1);
+		workRepository.store(workedInterval2Date2Client1);
+		workRepository.store(workedInterval1Date3Client2);
+		workRepository.store(workedInterval2Date3Client2);
+		workRepository.store(workedInterval1Date4Client1);
+		workRepository.store(workedInterval2Date4Client1);
+		workRepository.store(workedInterval1Date5Client1);
+		workRepository.store(workedInterval2Date5Client1);
+		workRepository.store(workedInterval1Date6Client2);
+		workRepository.store(workedInterval2Date6Client2);
+		
+		int workMinutesByEmployee = workRepository.getWorkedMinutesByMonthIntervalByProjectByEmployee(2, 3, new Project(3, "project03", new Client(2, "client02")), new Employee(1, "emp01"));
+		
+		assertThat(workMinutesByEmployee, equalTo(0));
 	}
 	
 	/**
