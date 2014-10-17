@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -7,8 +8,11 @@
 	<name>timesheet</name>
 	<description>timesheet</description>
 	<packaging>pom</packaging>
+	
 	<modules>
 		<module>timesheet-model</module>
+		<module>timesheet-repository</module>
+		<module>timesheet-test</module>
 	</modules>
 
 	<dependencyManagement>
@@ -34,11 +38,11 @@
 				<version>4.10</version>
 				<scope>test</scope>
 				<exclusions>
-			        <exclusion>
-			            <groupId>org.hamcrest</groupId>
-			            <artifactId>hamcrest-core</artifactId>
-			        </exclusion>
-			    </exclusions>
+					<exclusion>
+						<groupId>org.hamcrest</groupId>
+						<artifactId>hamcrest-core</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.hamcrest</groupId>
