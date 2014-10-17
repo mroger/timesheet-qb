@@ -31,9 +31,15 @@ public interface WorkRepository {
 
 	List<WorkPeriod> findByDateIntervalAndClient(LocalDate startDate, LocalDate finishDate, Client client);
 
-	List<WorkPeriod> findByMonthAndClient(int month, Client client);
+	List<WorkPeriod> findByMonthByClient(int month, Client client);
 
-	List<WorkPeriod> findByMonthIntervalAndClient(int startMonth, int finishMonth, Client client);
+	List<WorkPeriod> findByMonthByEmployee(int month, Employee employee);
+
+	List<WorkPeriod> findByMonthInterval(int startMonth, int finishMonth);
+
+	List<WorkPeriod> findByMonthIntervalByClient(int startMonth, int finishMonth, Client client);
+
+	List<WorkPeriod> findByMonthIntervalByEmployee(int startMonth, int finishMonth, Employee employee);
 
 	/**
 	 * Updates workperiod interval. 
