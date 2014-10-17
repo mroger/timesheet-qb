@@ -12,7 +12,6 @@
 	<modules>
 		<module>timesheet-model</module>
 		<module>timesheet-repository</module>
-		<module>timesheet-test</module>
 	</modules>
 
 	<dependencyManagement>
