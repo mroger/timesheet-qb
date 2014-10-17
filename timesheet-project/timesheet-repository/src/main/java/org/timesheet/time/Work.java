@@ -10,8 +10,6 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.Minutes;
 
-import br.org.matrix.timesheet.project.AllocationDB;
-import br.org.matrix.timesheet.project.AllocationRepository;
 import br.org.matrix.timesheet.project.Client;
 import br.org.matrix.timesheet.project.DateIntervalOvelapsException;
 import br.org.matrix.timesheet.project.Employee;
@@ -31,8 +29,6 @@ public class Work implements WorkRepository {
 	private Map<Client, List<WorkPeriod>> workUnitsByClient;
 	private Map<Project, List<WorkPeriod>> workUnitsByProject;
 	
-	private AllocationRepository allocationRepository;
-	
 	public Work() {
 		workUnits = Lists.newArrayList();
 		workUnitsByDate = Maps.newHashMap();
@@ -40,9 +36,6 @@ public class Work implements WorkRepository {
 		workUnitsByClient = Maps.newHashMap();
 		workUnitsByProject = Maps.newHashMap();
 		
-		//TODO Find a better name for this in memory DB
-		//TODO Inject from the tests
-		allocationRepository = new AllocationDB();
 	}
 
 	public void store(WorkPeriod workPeriod) {
