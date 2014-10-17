@@ -492,7 +492,7 @@ public class WorkTest {
 		workRepository.store(workedInterval1Date6Client2);
 		workRepository.store(workedInterval2Date6Client2);
 		
-		List<WorkPeriod> workPeriods = workRepository.findByMonthAndClient(2, new Client(2, "client02"));
+		List<WorkPeriod> workPeriods = workRepository.findByMonthByClient(2, new Client(2, "client02"));
 		assertThat(workPeriods.size(), equalTo(6));
 		assertTrue(workPeriods.contains(workedInterval1Date4Client2));
 		assertTrue(workPeriods.contains(workedInterval2Date4Client2));
@@ -505,12 +505,184 @@ public class WorkTest {
 	
 	@Test
 	public void shouldFindWorkPeriodOfAnEmployeeInAGivenMonth() {
+		LocalDate date1 = createDate(2000, 1, 1);
+		LocalDate date2 = createDate(2000, 1, 2);
+		LocalDate date3 = createDate(2000, 1, 3);
+		LocalDate date4 = createDate(2000, 2, 1);
+		LocalDate date5 = createDate(2000, 2, 2);
+		LocalDate date6 = createDate(2000, 2, 3);
 		
+		Allocation allocationClient1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		Allocation allocationClient2 = createAllocation(2, "emp02", 2, "project02", 2, "client02");
+		
+		WorkPeriod workedInterval1Date1Client1 = new WorkPeriod(date1, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date1Client1 = new WorkPeriod(date1, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date2Client1 = new WorkPeriod(date2, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date2Client1 = new WorkPeriod(date2, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date3Client1 = new WorkPeriod(date3, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date3Client1 = new WorkPeriod(date3, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date4Client1 = new WorkPeriod(date4, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date4Client1 = new WorkPeriod(date4, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date5Client1 = new WorkPeriod(date5, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date5Client1 = new WorkPeriod(date5, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date6Client1 = new WorkPeriod(date6, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date6Client1 = new WorkPeriod(date6, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date1Client2 = new WorkPeriod(date1, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date1Client2 = new WorkPeriod(date1, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date2Client2 = new WorkPeriod(date2, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date2Client2 = new WorkPeriod(date2, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date3Client2 = new WorkPeriod(date3, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date3Client2 = new WorkPeriod(date3, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date4Client2 = new WorkPeriod(date4, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date4Client2 = new WorkPeriod(date4, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date5Client2 = new WorkPeriod(date5, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date5Client2 = new WorkPeriod(date5, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 0), time(17, 0), allocationClient2);
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedInterval1Date1Client1);
+		workRepository.store(workedInterval2Date1Client1);
+		workRepository.store(workedInterval1Date2Client1);
+		workRepository.store(workedInterval2Date2Client1);
+		workRepository.store(workedInterval1Date3Client1);
+		workRepository.store(workedInterval2Date3Client1);
+		workRepository.store(workedInterval1Date4Client1);
+		workRepository.store(workedInterval2Date4Client1);
+		workRepository.store(workedInterval1Date5Client1);
+		workRepository.store(workedInterval2Date5Client1);
+		workRepository.store(workedInterval1Date6Client1);
+		workRepository.store(workedInterval2Date6Client1);
+		workRepository.store(workedInterval1Date1Client2);
+		workRepository.store(workedInterval2Date1Client2);
+		workRepository.store(workedInterval1Date2Client2);
+		workRepository.store(workedInterval2Date2Client2);
+		workRepository.store(workedInterval1Date3Client2);
+		workRepository.store(workedInterval2Date3Client2);
+		workRepository.store(workedInterval1Date4Client2);
+		workRepository.store(workedInterval2Date4Client2);
+		workRepository.store(workedInterval1Date5Client2);
+		workRepository.store(workedInterval2Date5Client2);
+		workRepository.store(workedInterval1Date6Client2);
+		workRepository.store(workedInterval2Date6Client2);
+		
+		List<WorkPeriod> workPeriods = workRepository.findByMonthByEmployee(2, new Employee(2, "emp02"));
+		assertThat(workPeriods.size(), equalTo(6));
+		assertTrue(workPeriods.contains(workedInterval1Date4Client2));
+		assertTrue(workPeriods.contains(workedInterval2Date4Client2));
+		assertTrue(workPeriods.contains(workedInterval1Date5Client2));
+		assertTrue(workPeriods.contains(workedInterval2Date5Client2));
+		assertTrue(workPeriods.contains(workedInterval1Date6Client2));
+		assertTrue(workPeriods.contains(workedInterval2Date6Client2));
 	}
 	
 	@Test
 	public void shouldFindWorkPeriodBetweenTwoMonths() {
+		LocalDate date1 = createDate(2000, 1, 1);
+		LocalDate date2 = createDate(2000, 1, 2);
+		LocalDate date3 = createDate(2000, 2, 1);
+		LocalDate date4 = createDate(2000, 2, 2);
+		LocalDate date5 = createDate(2000, 3, 1);
+		LocalDate date6 = createDate(2000, 3, 2);
+		LocalDate date7 = createDate(2000, 4, 1);
+		LocalDate date8 = createDate(2000, 4, 2);
 		
+		Allocation allocationClient1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		Allocation allocationClient2 = createAllocation(2, "emp02", 2, "project02", 2, "client02");
+		
+		WorkPeriod workedInterval1Date1Client1 = new WorkPeriod(date1, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date1Client1 = new WorkPeriod(date1, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date2Client1 = new WorkPeriod(date2, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date2Client1 = new WorkPeriod(date2, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date3Client1 = new WorkPeriod(date3, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date3Client1 = new WorkPeriod(date3, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date4Client1 = new WorkPeriod(date4, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date4Client1 = new WorkPeriod(date4, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date5Client1 = new WorkPeriod(date5, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date5Client1 = new WorkPeriod(date5, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date6Client1 = new WorkPeriod(date6, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date6Client1 = new WorkPeriod(date6, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date7Client1 = new WorkPeriod(date7, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date7Client1 = new WorkPeriod(date7, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date8Client1 = new WorkPeriod(date8, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date8Client1 = new WorkPeriod(date8, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date1Client2 = new WorkPeriod(date1, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date1Client2 = new WorkPeriod(date1, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date2Client2 = new WorkPeriod(date2, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date2Client2 = new WorkPeriod(date2, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date3Client2 = new WorkPeriod(date3, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date3Client2 = new WorkPeriod(date3, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date4Client2 = new WorkPeriod(date4, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date4Client2 = new WorkPeriod(date4, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date5Client2 = new WorkPeriod(date5, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date5Client2 = new WorkPeriod(date5, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date7Client2 = new WorkPeriod(date7, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date7Client2 = new WorkPeriod(date7, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date8Client2 = new WorkPeriod(date8, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date8Client2 = new WorkPeriod(date8, time(13, 0), time(17, 0), allocationClient2);
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedInterval1Date1Client1);
+		workRepository.store(workedInterval2Date1Client1);
+		workRepository.store(workedInterval1Date2Client1);
+		workRepository.store(workedInterval2Date2Client1);
+		workRepository.store(workedInterval1Date3Client1);
+		workRepository.store(workedInterval2Date3Client1);
+		workRepository.store(workedInterval1Date4Client1);
+		workRepository.store(workedInterval2Date4Client1);
+		workRepository.store(workedInterval1Date5Client1);
+		workRepository.store(workedInterval2Date5Client1);
+		workRepository.store(workedInterval1Date6Client1);
+		workRepository.store(workedInterval2Date6Client1);
+		workRepository.store(workedInterval1Date7Client1);
+		workRepository.store(workedInterval2Date7Client1);
+		workRepository.store(workedInterval1Date8Client1);
+		workRepository.store(workedInterval2Date8Client1);
+		workRepository.store(workedInterval1Date1Client2);
+		workRepository.store(workedInterval2Date1Client2);
+		workRepository.store(workedInterval1Date2Client2);
+		workRepository.store(workedInterval2Date2Client2);
+		workRepository.store(workedInterval1Date3Client2);
+		workRepository.store(workedInterval2Date3Client2);
+		workRepository.store(workedInterval1Date4Client2);
+		workRepository.store(workedInterval2Date4Client2);
+		workRepository.store(workedInterval1Date5Client2);
+		workRepository.store(workedInterval2Date5Client2);
+		workRepository.store(workedInterval1Date6Client2);
+		workRepository.store(workedInterval2Date6Client2);
+		workRepository.store(workedInterval1Date7Client2);
+		workRepository.store(workedInterval2Date7Client2);
+		workRepository.store(workedInterval1Date8Client2);
+		workRepository.store(workedInterval2Date8Client2);
+		
+		List<WorkPeriod> workPeriods = workRepository.findByMonthInterval(2, 4);
+		assertThat(workPeriods.size(), equalTo(24));
+		assertTrue(workPeriods.contains(workedInterval1Date3Client1));
+		assertTrue(workPeriods.contains(workedInterval2Date3Client1));
+		assertTrue(workPeriods.contains(workedInterval1Date4Client1));
+		assertTrue(workPeriods.contains(workedInterval2Date4Client1));
+		assertTrue(workPeriods.contains(workedInterval1Date5Client1));
+		assertTrue(workPeriods.contains(workedInterval2Date5Client1));
+		assertTrue(workPeriods.contains(workedInterval1Date6Client1));
+		assertTrue(workPeriods.contains(workedInterval2Date6Client1));
+		assertTrue(workPeriods.contains(workedInterval1Date7Client1));
+		assertTrue(workPeriods.contains(workedInterval2Date7Client1));
+		assertTrue(workPeriods.contains(workedInterval1Date8Client1));
+		assertTrue(workPeriods.contains(workedInterval2Date8Client1));
+		assertTrue(workPeriods.contains(workedInterval1Date3Client2));
+		assertTrue(workPeriods.contains(workedInterval2Date3Client2));
+		assertTrue(workPeriods.contains(workedInterval1Date4Client2));
+		assertTrue(workPeriods.contains(workedInterval2Date4Client2));
+		assertTrue(workPeriods.contains(workedInterval1Date5Client2));
+		assertTrue(workPeriods.contains(workedInterval2Date5Client2));
+		assertTrue(workPeriods.contains(workedInterval1Date6Client2));
+		assertTrue(workPeriods.contains(workedInterval2Date6Client2));
+		assertTrue(workPeriods.contains(workedInterval1Date7Client2));
+		assertTrue(workPeriods.contains(workedInterval2Date7Client2));
+		assertTrue(workPeriods.contains(workedInterval1Date8Client2));
+		assertTrue(workPeriods.contains(workedInterval2Date8Client2));
 	}
 	
 	@Test
@@ -594,7 +766,7 @@ public class WorkTest {
 		workRepository.store(workedInterval1Date8Client2);
 		workRepository.store(workedInterval2Date8Client2);
 		
-		List<WorkPeriod> workPeriods = workRepository.findByMonthIntervalAndClient(2, 4, new Client(2, "client02"));
+		List<WorkPeriod> workPeriods = workRepository.findByMonthIntervalByClient(2, 4, new Client(2, "client02"));
 		assertThat(workPeriods.size(), equalTo(12));
 		assertTrue(workPeriods.contains(workedInterval1Date3Client2));
 		assertTrue(workPeriods.contains(workedInterval2Date3Client2));
@@ -612,7 +784,99 @@ public class WorkTest {
 	
 	@Test
 	public void shouldFindWorkPeriodOfAnEmployeeBetweenTwoMonths() {
+		LocalDate date1 = createDate(2000, 1, 1);
+		LocalDate date2 = createDate(2000, 1, 2);
+		LocalDate date3 = createDate(2000, 2, 1);
+		LocalDate date4 = createDate(2000, 2, 2);
+		LocalDate date5 = createDate(2000, 3, 1);
+		LocalDate date6 = createDate(2000, 3, 2);
+		LocalDate date7 = createDate(2000, 4, 1);
+		LocalDate date8 = createDate(2000, 4, 2);
 		
+		Allocation allocationClient1 = createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		Allocation allocationClient2 = createAllocation(2, "emp02", 2, "project02", 2, "client02");
+		
+		WorkPeriod workedInterval1Date1Client1 = new WorkPeriod(date1, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date1Client1 = new WorkPeriod(date1, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date2Client1 = new WorkPeriod(date2, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date2Client1 = new WorkPeriod(date2, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date3Client1 = new WorkPeriod(date3, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date3Client1 = new WorkPeriod(date3, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date4Client1 = new WorkPeriod(date4, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date4Client1 = new WorkPeriod(date4, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date5Client1 = new WorkPeriod(date5, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date5Client1 = new WorkPeriod(date5, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date6Client1 = new WorkPeriod(date6, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date6Client1 = new WorkPeriod(date6, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date7Client1 = new WorkPeriod(date7, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date7Client1 = new WorkPeriod(date7, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date8Client1 = new WorkPeriod(date8, time(8, 0), time(12, 0), allocationClient1);
+		WorkPeriod workedInterval2Date8Client1 = new WorkPeriod(date8, time(13, 0), time(17, 0), allocationClient1);
+		WorkPeriod workedInterval1Date1Client2 = new WorkPeriod(date1, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date1Client2 = new WorkPeriod(date1, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date2Client2 = new WorkPeriod(date2, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date2Client2 = new WorkPeriod(date2, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date3Client2 = new WorkPeriod(date3, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date3Client2 = new WorkPeriod(date3, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date4Client2 = new WorkPeriod(date4, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date4Client2 = new WorkPeriod(date4, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date5Client2 = new WorkPeriod(date5, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date5Client2 = new WorkPeriod(date5, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date7Client2 = new WorkPeriod(date7, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date7Client2 = new WorkPeriod(date7, time(13, 0), time(17, 0), allocationClient2);
+		WorkPeriod workedInterval1Date8Client2 = new WorkPeriod(date8, time(8, 0), time(12, 0), allocationClient2);
+		WorkPeriod workedInterval2Date8Client2 = new WorkPeriod(date8, time(13, 0), time(17, 0), allocationClient2);
+		
+		WorkRepository workRepository = new Work();
+		workRepository.store(workedInterval1Date1Client1);
+		workRepository.store(workedInterval2Date1Client1);
+		workRepository.store(workedInterval1Date2Client1);
+		workRepository.store(workedInterval2Date2Client1);
+		workRepository.store(workedInterval1Date3Client1);
+		workRepository.store(workedInterval2Date3Client1);
+		workRepository.store(workedInterval1Date4Client1);
+		workRepository.store(workedInterval2Date4Client1);
+		workRepository.store(workedInterval1Date5Client1);
+		workRepository.store(workedInterval2Date5Client1);
+		workRepository.store(workedInterval1Date6Client1);
+		workRepository.store(workedInterval2Date6Client1);
+		workRepository.store(workedInterval1Date7Client1);
+		workRepository.store(workedInterval2Date7Client1);
+		workRepository.store(workedInterval1Date8Client1);
+		workRepository.store(workedInterval2Date8Client1);
+		workRepository.store(workedInterval1Date1Client2);
+		workRepository.store(workedInterval2Date1Client2);
+		workRepository.store(workedInterval1Date2Client2);
+		workRepository.store(workedInterval2Date2Client2);
+		workRepository.store(workedInterval1Date3Client2);
+		workRepository.store(workedInterval2Date3Client2);
+		workRepository.store(workedInterval1Date4Client2);
+		workRepository.store(workedInterval2Date4Client2);
+		workRepository.store(workedInterval1Date5Client2);
+		workRepository.store(workedInterval2Date5Client2);
+		workRepository.store(workedInterval1Date6Client2);
+		workRepository.store(workedInterval2Date6Client2);
+		workRepository.store(workedInterval1Date7Client2);
+		workRepository.store(workedInterval2Date7Client2);
+		workRepository.store(workedInterval1Date8Client2);
+		workRepository.store(workedInterval2Date8Client2);
+		
+		List<WorkPeriod> workPeriods = workRepository.findByMonthIntervalByEmployee(2, 4, new Employee(2, "emp02"));
+		assertThat(workPeriods.size(), equalTo(12));
+		assertTrue(workPeriods.contains(workedInterval1Date3Client2));
+		assertTrue(workPeriods.contains(workedInterval2Date3Client2));
+		assertTrue(workPeriods.contains(workedInterval1Date4Client2));
+		assertTrue(workPeriods.contains(workedInterval2Date4Client2));
+		assertTrue(workPeriods.contains(workedInterval1Date5Client2));
+		assertTrue(workPeriods.contains(workedInterval2Date5Client2));
+		assertTrue(workPeriods.contains(workedInterval1Date6Client2));
+		assertTrue(workPeriods.contains(workedInterval2Date6Client2));
+		assertTrue(workPeriods.contains(workedInterval1Date7Client2));
+		assertTrue(workPeriods.contains(workedInterval2Date7Client2));
+		assertTrue(workPeriods.contains(workedInterval1Date8Client2));
+		assertTrue(workPeriods.contains(workedInterval2Date8Client2));
 	}
 	
 	@Test
