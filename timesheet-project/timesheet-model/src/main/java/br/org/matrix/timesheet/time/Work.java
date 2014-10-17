@@ -174,16 +174,33 @@ public class Work implements WorkRepository {
 		return Lists.newArrayList(Collections2.filter(workPeriodsByClient, dateIntervalPredicate));
 	}
 
-	public List<WorkPeriod> findByMonthAndClient(int month, Client client) {
+	public List<WorkPeriod> findByMonthByClient(int month, Client client) {
 		Predicate<WorkPeriod> dateMonthPredicate = createWorkPeriodPredicate(month);
 		List<WorkPeriod> workPeriodsByClient = workUnitsByClient.get(client);
 		return Lists.newArrayList(Collections2.filter(workPeriodsByClient, dateMonthPredicate));
 	}
 
-	public List<WorkPeriod> findByMonthIntervalAndClient(int startMonth, int finishMonth, Client client) {
+	public List<WorkPeriod> findByMonthByEmployee(int month, Employee employee) {
+		Predicate<WorkPeriod> dateMonthPredicate = createWorkPeriodPredicate(month);
+		List<WorkPeriod> workPeriodsByClient = workUnitsByEmployee.get(employee);
+		return Lists.newArrayList(Collections2.filter(workPeriodsByClient, dateMonthPredicate));
+	}
+
+	public List<WorkPeriod> findByMonthInterval(int startMonth, int finishMonth) {
+		Predicate<WorkPeriod> dateMonthPredicate = createWorkPeriodPredicate(startMonth, finishMonth);
+		return Lists.newArrayList(Collections2.filter(workUnits, dateMonthPredicate));
+	}
+
+	public List<WorkPeriod> findByMonthIntervalByClient(int startMonth, int finishMonth, Client client) {
 		Predicate<WorkPeriod> dateMonthPredicate = createWorkPeriodPredicate(startMonth, finishMonth);
 		List<WorkPeriod> workPeriodsByClient = workUnitsByClient.get(client);
 		return Lists.newArrayList(Collections2.filter(workPeriodsByClient, dateMonthPredicate));
+	}
+
+	public List<WorkPeriod> findByMonthIntervalByEmployee(int startMonth, int finishMonth, Employee employee) {
+		Predicate<WorkPeriod> dateMonthPredicate = createWorkPeriodPredicate(startMonth, finishMonth);
+		List<WorkPeriod> workPeriodsByEmployee = workUnitsByEmployee.get(employee);
+		return Lists.newArrayList(Collections2.filter(workPeriodsByEmployee, dateMonthPredicate));
 	}
 
 	public void update(final WorkPeriod workPeriod, final LocalTime startTime, final LocalTime finishTime) {
