@@ -35,45 +35,21 @@ public class Work implements WorkRepository {
 		workUnitsByEmployee = Maps.newHashMap();
 		workUnitsByClient = Maps.newHashMap();
 		workUnitsByProject = Maps.newHashMap();
-		
 	}
 
 	public void store(WorkPeriod workPeriod) {
 		workUnits.add(workPeriod);
 		
-		List<WorkPeriod> workPeriodsByDate = workUnitsByDate.get(workPeriod.getDate());
-		if (workPeriodsByDate == null) {
-			workPeriodsByDate = Lists.newArrayList();
-			workPeriodsByDate.add(workPeriod);
-			workUnitsByDate.put(workPeriod.getDate(), workPeriodsByDate);
-		} else {
-			workPeriodsByDate.add(workPeriod);
-		}
+		storeWorkPeriodByDate(workPeriod);
 		
-		List<WorkPeriod> workPeriodsByEmployee = workUnitsByEmployee.get(workPeriod.getEmployee());
-		if (workPeriodsByEmployee == null) {
-			workPeriodsByEmployee = Lists.newArrayList();
-			workPeriodsByEmployee.add(workPeriod);
-			workUnitsByEmployee.put(workPeriod.getEmployee(), workPeriodsByEmployee);
-		} else {
-			//TODO Move to beginning of the method
-			if (workPeriod.overlaps(workPeriodsByEmployee)) {
-				throw new DateIntervalOvelapsException(workPeriod.getEmployee().getId(), 
-						workPeriod.getEmployee().getName(), workPeriod.getDate(), 
-						workPeriod.getStartTime(), workPeriod.getStopTime());
-			}
-			workPeriodsByEmployee.add(workPeriod);
-		}
+		storeWorkPeriodByEmployee(workPeriod);
 		
-		List<WorkPeriod> workPeriodsByClient = workUnitsByClient.get(workPeriod.getClient());
-		if (workPeriodsByClient == null) {
-			workPeriodsByClient = Lists.newArrayList();
-			workPeriodsByClient.add(workPeriod);
-			workUnitsByClient.put(workPeriod.getClient(), workPeriodsByClient);
-		} else {
-			workPeriodsByClient.add(workPeriod);
-		}
+		storeWorkPeriodByClient(workPeriod);
 		
+		storeWorkPeriodByProject(workPeriod);
+	}
+
+	private void storeWorkPeriodByProject(WorkPeriod workPeriod) {
 		List<WorkPeriod> workPeriodsByProject = workUnitsByProject.get(workPeriod.getProject());
 		if (workPeriodsByProject == null) {
 			workPeriodsByProject = Lists.newArrayList();
@@ -83,40 +59,68 @@ public class Work implements WorkRepository {
 			workPeriodsByProject.add(workPeriod);
 		}
 	}
+
+	private void storeWorkPeriodByEmployee(WorkPeriod workPeriod) {
+		List<WorkPeriod> workPeriodsByEmployee = workUnitsByEmployee.get(workPeriod.getEmployee());
+		if (workPeriodsByEmployee == null) {
+			workPeriodsByEmployee = Lists.newArrayList();
+			workPeriodsByEmployee.add(workPeriod);
+			workUnitsByEmployee.put(workPeriod.getEmployee(), workPeriodsByEmployee);
+		} else {
+			checkIfOverlapsForEmployee(workPeriod, workPeriodsByEmployee);
+			workPeriodsByEmployee.add(workPeriod);
+		}
+	}
+
+	private void checkIfOverlapsForEmployee(WorkPeriod workPeriod,
+			List<WorkPeriod> workPeriodsByEmployee) {
+		if (workPeriod.overlaps(workPeriodsByEmployee)) {
+			throw new DateIntervalOvelapsException(workPeriod.getEmployee().getId(), 
+					workPeriod.getEmployee().getName(), workPeriod.getDate(), 
+					workPeriod.getStartTime(), workPeriod.getStopTime());
+		}
+	}
+
+	private void storeWorkPeriodByClient(WorkPeriod workPeriod) {
+		List<WorkPeriod> workPeriodsByClient = workUnitsByClient.get(workPeriod.getClient());
+		if (workPeriodsByClient == null) {
+			workPeriodsByClient = Lists.newArrayList();
+			workPeriodsByClient.add(workPeriod);
+			workUnitsByClient.put(workPeriod.getClient(), workPeriodsByClient);
+		} else {
+			workPeriodsByClient.add(workPeriod);
+		}
+	}
+
+	private void storeWorkPeriodByDate(WorkPeriod workPeriod) {
+		List<WorkPeriod> workPeriodsByDate = workUnitsByDate.get(workPeriod.getDate());
+		if (workPeriodsByDate == null) {
+			workPeriodsByDate = Lists.newArrayList();
+			workPeriodsByDate.add(workPeriod);
+			workUnitsByDate.put(workPeriod.getDate(), workPeriodsByDate);
+		} else {
+			workPeriodsByDate.add(workPeriod);
+		}
+	}
 	
 	//TODO Write tests
 	public void delete(WorkPeriod workPeriod) {
 		workUnits.remove(workPeriod);
 		
-		//TODO Extract duplicate code to a generic class
-		for(LocalDate localDate : workUnitsByDate.keySet()) {
-			List<WorkPeriod> workUnits = workUnitsByDate.get(localDate);
-			if (workUnits.contains(workPeriod)) {
-				workUnits.remove(workPeriod);
-				break;
-			}
-		}
+		removeItem(workPeriod, workUnitsByDate);
 		
-		for(Employee employee : workUnitsByEmployee.keySet()) {
-			List<WorkPeriod> workUnits = workUnitsByEmployee.get(employee);
-			if (workUnits.contains(workPeriod)) {
-				workUnits.remove(workPeriod);
-				break;
-			}
-		}
+		removeItem(workPeriod, workUnitsByEmployee);
 		
-		for(Client client : workUnitsByClient.keySet()) {
-			List<WorkPeriod> workUnits = workUnitsByClient.get(client);
-			if (workUnits.contains(workPeriod)) {
-				workUnits.remove(workPeriod);
-				break;
-			}
-		}
+		removeItem(workPeriod, workUnitsByClient);
 		
-		for(Project project : workUnitsByProject.keySet()) {
-			List<WorkPeriod> workUnits = workUnitsByProject.get(project);
-			if (workUnits.contains(workPeriod)) {
-				workUnits.remove(workPeriod);
+		removeItem(workPeriod, workUnitsByProject);
+	}
+	
+	private <T> void removeItem(WorkPeriod workPeriod, Map<T, List<WorkPeriod>> workUnits) {
+		for(T item : workUnits.keySet()) {
+			List<WorkPeriod> workUnits_ = workUnits.get(item);
+			if (workUnits_.contains(workPeriod)) {
+				workUnits_.remove(workPeriod);
 				break;
 			}
 		}
