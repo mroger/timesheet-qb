@@ -59,7 +59,8 @@ public class Work implements WorkRepository {
 	}
 
 	private void checkIfOverlapsForEmployee(WorkPeriod workPeriod) {
-		List<WorkPeriod> workPeriodsByEmployee = workUnitsByEmployee.get(workPeriod.getEmployee());
+		List<WorkPeriod> workPeriodsByEmployee = 
+			new Filter<Employee>(workUnitsByEmployee, workPeriod.getEmployee()).getResult();
 		if (workPeriodsByEmployee != null) {
 			if (workPeriod.overlaps(workPeriodsByEmployee)) {
 				throw new DateIntervalOvelapsException(workPeriod.getEmployee().getId(), 
@@ -198,7 +199,6 @@ public class Work implements WorkRepository {
 	}
 
 	public void update(final WorkPeriod workPeriod, final LocalTime startTime, final LocalTime finishTime) {
-		
 		List<WorkPeriod> workPeriods = new Filter<Employee>(workUnitsByEmployee, workPeriod.getEmployee())
 			.andFilterBy(workPeriod)
 			.getResult();
@@ -280,10 +280,9 @@ public class Work implements WorkRepository {
 	}
 
 	//TODO Get rid of this @SuppressWarnings annotation
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public int getWorkedMinutesByMonthInterval(int startMonth, int finishMonth) {
 		//TODO Get rid of this @SuppressWarnings annotation
-		@SuppressWarnings("rawtypes")
 		List<WorkPeriod> workPeriods = new Filter(workUnits)
 			.andFilterBy(startMonth, finishMonth)
 			.getResult();
