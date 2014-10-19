@@ -50,56 +50,42 @@ public class Work implements WorkRepository {
 	}
 
 	private void storeWorkPeriodByProject(WorkPeriod workPeriod) {
-		List<WorkPeriod> workPeriodsByProject = workUnitsByProject.get(workPeriod.getProject());
-		if (workPeriodsByProject == null) {
-			workPeriodsByProject = Lists.newArrayList();
-			workPeriodsByProject.add(workPeriod);
-			workUnitsByProject.put(workPeriod.getProject(), workPeriodsByProject);
-		} else {
-			workPeriodsByProject.add(workPeriod);
-		}
+		store(workUnitsByProject, workPeriod, workPeriod.getProject());
 	}
 
 	private void storeWorkPeriodByEmployee(WorkPeriod workPeriod) {
-		List<WorkPeriod> workPeriodsByEmployee = workUnitsByEmployee.get(workPeriod.getEmployee());
-		if (workPeriodsByEmployee == null) {
-			workPeriodsByEmployee = Lists.newArrayList();
-			workPeriodsByEmployee.add(workPeriod);
-			workUnitsByEmployee.put(workPeriod.getEmployee(), workPeriodsByEmployee);
-		} else {
-			checkIfOverlapsForEmployee(workPeriod, workPeriodsByEmployee);
-			workPeriodsByEmployee.add(workPeriod);
-		}
+		checkIfOverlapsForEmployee(workPeriod);
+		store(workUnitsByEmployee, workPeriod, workPeriod.getEmployee());
 	}
 
-	private void checkIfOverlapsForEmployee(WorkPeriod workPeriod,
-			List<WorkPeriod> workPeriodsByEmployee) {
-		if (workPeriod.overlaps(workPeriodsByEmployee)) {
-			throw new DateIntervalOvelapsException(workPeriod.getEmployee().getId(), 
-					workPeriod.getEmployee().getName(), workPeriod.getDate(), 
-					workPeriod.getStartTime(), workPeriod.getStopTime());
+	private void checkIfOverlapsForEmployee(WorkPeriod workPeriod) {
+		List<WorkPeriod> workPeriodsByEmployee = workUnitsByEmployee.get(workPeriod.getEmployee());
+		if (workPeriodsByEmployee != null) {
+			if (workPeriod.overlaps(workPeriodsByEmployee)) {
+				throw new DateIntervalOvelapsException(workPeriod.getEmployee().getId(), 
+						workPeriod.getEmployee().getName(), workPeriod.getDate(), 
+						workPeriod.getStartTime(), workPeriod.getStopTime());
+			}
 		}
+		
 	}
 
 	private void storeWorkPeriodByClient(WorkPeriod workPeriod) {
-		List<WorkPeriod> workPeriodsByClient = workUnitsByClient.get(workPeriod.getClient());
-		if (workPeriodsByClient == null) {
-			workPeriodsByClient = Lists.newArrayList();
-			workPeriodsByClient.add(workPeriod);
-			workUnitsByClient.put(workPeriod.getClient(), workPeriodsByClient);
-		} else {
-			workPeriodsByClient.add(workPeriod);
-		}
+		store(workUnitsByClient, workPeriod, workPeriod.getClient());
 	}
 
 	private void storeWorkPeriodByDate(WorkPeriod workPeriod) {
-		List<WorkPeriod> workPeriodsByDate = workUnitsByDate.get(workPeriod.getDate());
-		if (workPeriodsByDate == null) {
-			workPeriodsByDate = Lists.newArrayList();
-			workPeriodsByDate.add(workPeriod);
-			workUnitsByDate.put(workPeriod.getDate(), workPeriodsByDate);
+		store(workUnitsByDate, workPeriod, workPeriod.getDate());
+	}
+	
+	private <T> void store(Map<T, List<WorkPeriod>> workUnits, WorkPeriod workPeriod, T key) {
+		List<WorkPeriod> workPeriods = workUnits.get(key);
+		if (workPeriods == null) {
+			workPeriods = Lists.newArrayList();
+			workPeriods.add(workPeriod);
+			workUnits.put(key, workPeriods);
 		} else {
-			workPeriodsByDate.add(workPeriod);
+			workPeriods.add(workPeriod);
 		}
 	}
 	
@@ -379,10 +365,10 @@ public class Work implements WorkRepository {
 
 	public int getWorkedMinutesByMonthIntervalByProjectByEmployee(int startMonth, int finishMonth, Project project, Employee employee) {
 		int total = 0;
-		Predicate<WorkPeriod> dateMonthPredicate = createWorkPeriodPredicate(startMonth, finishMonth);
-		Predicate<WorkPeriod> employeePredicate = createWorkPeriodPredicate(employee);
 		List<WorkPeriod> workPeriodsByProject = workUnitsByProject.get(project);
+		Predicate<WorkPeriod> dateMonthPredicate = createWorkPeriodPredicate(startMonth, finishMonth);
 		List<WorkPeriod> workPeriodsByMonth = Lists.newArrayList(Collections2.filter(workPeriodsByProject, dateMonthPredicate));
+		Predicate<WorkPeriod> employeePredicate = createWorkPeriodPredicate(employee);
 		List<WorkPeriod> workPeriodsByEmployee = Lists.newArrayList(Collections2.filter(workPeriodsByMonth, employeePredicate));
 		for (WorkPeriod workPeriod : workPeriodsByEmployee) {
 			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
@@ -391,9 +377,9 @@ public class Work implements WorkRepository {
 	}
 
 	public int getWorkedMinutesByProjectByEmployee(Project project, Employee employee) {
-		int total = 0;
-		Predicate<WorkPeriod> employeePredicate = createWorkPeriodPredicate(employee);
+		int total = 0;		
 		List<WorkPeriod> workPeriodsByProject = workUnitsByProject.get(project);
+		Predicate<WorkPeriod> employeePredicate = createWorkPeriodPredicate(employee);
 		List<WorkPeriod> workPeriodsByEmployee = Lists.newArrayList(Collections2.filter(workPeriodsByProject, employeePredicate));
 		for (WorkPeriod workPeriod : workPeriodsByEmployee) {
 			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
