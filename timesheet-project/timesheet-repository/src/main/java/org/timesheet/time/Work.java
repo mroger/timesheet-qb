@@ -208,6 +208,7 @@ public class Work implements WorkRepository {
 			.getResult();
 		
 		checkArgument(!isEmpty(workPeriods), "Trying to change interval that does not exist.");
+		//TODO Check for unique WorkPeriod
 		WorkPeriod storedWorkPeriod = workPeriods.get(0);
 		delete(storedWorkPeriod);
 		WorkPeriod newWorkPeriod = new WorkPeriod(
@@ -216,32 +217,23 @@ public class Work implements WorkRepository {
 	}
 
 	public int getWorkedMinutesByDate(LocalDate date) {
-		int total = 0;
-		
 		List<WorkPeriod> workPeriods = new Filter<LocalDate>(workUnitsByDate, date)
 			.getResult();
 		
-		for (WorkPeriod workPeriod : workPeriods) {
-			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
-		}
-		return total;
+		return calculateTotalWorkedMinutes(workPeriods);
 	}
 
 	public int getWorkedMinutesByDateByEmployee(LocalDate date, Employee employee) {
-		int total = 0;
+		
 		
 		List<WorkPeriod> workPeriods = new Filter<LocalDate>(workUnitsByDate, date)
 			.andFilterBy(employee)
 			.getResult();
 		
-		for (WorkPeriod workPeriod : workPeriods) {
-			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
-		}
-		return total;
+		return calculateTotalWorkedMinutes(workPeriods);
 	}
 
 	public int getWorkedMinutesByDateInterval(LocalDate startDate, LocalDate finishDate) {
-		int total = 0;
 		Predicate<LocalDate> dateIntervalPredicate = createDatePredicate(startDate, finishDate);
 		Map<LocalDate, List<WorkPeriod>> _workUnits = Maps.filterKeys(workUnitsByDate, dateIntervalPredicate);
 		List<WorkPeriod> workPeriods = Lists.newArrayList();
@@ -249,187 +241,119 @@ public class Work implements WorkRepository {
 			List<WorkPeriod> _workPeriods = _workUnits.get(date);
 			workPeriods.addAll(_workPeriods);
 		}
-		for (WorkPeriod workPeriod : workPeriods) {
-			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
-		}
-		return total;
+		return calculateTotalWorkedMinutes(workPeriods);
 	}
 
 	public int getWorkedMinutesByDateIntervalAndEmployee(LocalDate startDate, LocalDate finishDate, Employee employee) {
-		int total = 0;
-		
 		List<WorkPeriod> workPeriods = new Filter<Employee>(workUnitsByEmployee, employee)
 			.andFilterBy(startDate, finishDate)
 			.getResult();
 		
-		for (WorkPeriod workPeriod : workPeriods) {
-			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
-		}
-		return total;
+		return calculateTotalWorkedMinutes(workPeriods);
 	}
 
 	@SuppressWarnings("unchecked")
 	public int getWorkedMinutesByMonth(int month) {
-		int total = 0;
-		
 		@SuppressWarnings("rawtypes")
 		List<WorkPeriod> workPeriods = new Filter(workUnits)
 			.andFilterBy(month)
 			.getResult();
 		
-		for (WorkPeriod workPeriod : workPeriods) {
-			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
-		}
-		return total;
+		return calculateTotalWorkedMinutes(workPeriods);
 	}
 
 	public int getWorkedMinutesByMonthByEmployee(int month, Employee employee) {
-		int total = 0;
-		
 		List<WorkPeriod> workPeriods = new Filter<Employee>(workUnitsByEmployee, employee)
 			.andFilterBy(month)
 			.getResult();
 		
-		for (WorkPeriod workPeriod : workPeriods) {
-			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
-		}
-		return total;
+		return calculateTotalWorkedMinutes(workPeriods);
 	}
 
 	public int getWorkedMinutesByMonthByClient(int month, Client client) {
-		int total = 0;
-		
 		List<WorkPeriod> workPeriods = new Filter<Client>(workUnitsByClient, client)
 			.andFilterBy(month)
 			.getResult();
 		
-		for (WorkPeriod workPeriod : workPeriods) {
-			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
-		}
-		return total;
+		return calculateTotalWorkedMinutes(workPeriods);
 	}
 
 	public int getWorkedMinutesByMonthByClientByEmployee(int month, Client client, Employee employee) {
-		int total = 0;
-		
 		List<WorkPeriod> workPeriods = new Filter<Client>(workUnitsByClient, client)
 			.andFilterBy(month)
 			.andFilterBy(employee)
 			.getResult();
 		
-		for (WorkPeriod workPeriod : workPeriods) {
-			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
-		}
-		return total;
+		return calculateTotalWorkedMinutes(workPeriods);
 	}
 
 	//TODO Get rid of this @SuppressWarnings annotation
 	@SuppressWarnings("unchecked")
 	public int getWorkedMinutesByMonthInterval(int startMonth, int finishMonth) {
-		int total = 0;
-		
 		//TODO Get rid of this @SuppressWarnings annotation
 		@SuppressWarnings("rawtypes")
 		List<WorkPeriod> workPeriods = new Filter(workUnits)
 			.andFilterBy(startMonth, finishMonth)
 			.getResult();
 		
-		for (WorkPeriod workPeriod : workPeriods) {
-			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
-		}
-		return total;
+		return calculateTotalWorkedMinutes(workPeriods);
 	}
 
 	public int getWorkedMinutesByMonthIntervalByEmployee(int startMonth, int finishMonth, Employee employee) {
-		int total = 0;
-		
 		List<WorkPeriod> workPeriods = new Filter<Employee>(workUnitsByEmployee, employee)
 			.andFilterBy(startMonth, finishMonth)
 			.getResult();
 		
-		for (WorkPeriod workPeriod : workPeriods) {
-			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
-		}
-		return total;
+		return calculateTotalWorkedMinutes(workPeriods);
 	}
 
 	public int getWorkedMinutesByMonthIntervalByClient(int startMonth, int finishMonth, Client client) {
-		int total = 0;
-		
 		List<WorkPeriod> workPeriods = new Filter<Client>(workUnitsByClient, client)
 			.andFilterBy(startMonth, finishMonth)
 			.getResult();
 		
-		for (WorkPeriod workPeriod : workPeriods) {
-			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
-		}
-		return total;
+		return calculateTotalWorkedMinutes(workPeriods);
 	}
 
 	public int getWorkedMinutesByMonthIntervalByClientByEmployee(int startMonth, int finishMonth, Client client, Employee employee) {
-		int total = 0;
-		
 		List<WorkPeriod> workPeriods = new Filter<Client>(workUnitsByClient, client)
 			.andFilterBy(startMonth, finishMonth)
 			.andFilterBy(employee)
 			.getResult();
 		
-		for (WorkPeriod workPeriod : workPeriods) {
-			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
-		}
-		return total;
+		return calculateTotalWorkedMinutes(workPeriods);
 	}
 
 	public int getWorkedMinutesByMonthIntervalByProject(int startMonth, int finishMonth, Project project) {
-		int total = 0;
-		
 		List<WorkPeriod> workPeriods = new Filter<Project>(workUnitsByProject, project)
 			.andFilterBy(startMonth, finishMonth)
 			.getResult();
 		
-		for (WorkPeriod workPeriod : workPeriods) {
-			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
-		}
-		return total;
+		return calculateTotalWorkedMinutes(workPeriods);
 	}
 
 	public int getWorkedMinutesByProject(Project project) {
-		int total = 0;
-		
 		List<WorkPeriod> workPeriods = new Filter<Project>(workUnitsByProject, project)
 			.getResult();
 		
-		for (WorkPeriod workPeriod : workPeriods) {
-			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
-		}
-		return total;
+		return calculateTotalWorkedMinutes(workPeriods);
 	}
 
 	public int getWorkedMinutesByMonthIntervalByProjectByEmployee(int startMonth, int finishMonth, Project project, Employee employee) {
-		int total = 0;
-		
 		List<WorkPeriod> workPeriods = new Filter<Project>(workUnitsByProject, project)
 			.andFilterBy(employee)
 			.andFilterBy(startMonth, finishMonth)
 			.getResult();
 		
-		for (WorkPeriod workPeriod : workPeriods) {
-			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
-		}
-		return total;
+		return calculateTotalWorkedMinutes(workPeriods);
 	}
 
 	public int getWorkedMinutesByProjectByEmployee(Project project, Employee employee) {
-		int total = 0;
-		
 		List<WorkPeriod> workPeriods = new Filter<Project>(workUnitsByProject, project)
 			.andFilterBy(employee)
 			.getResult();
 		
-		for (WorkPeriod workPeriod : workPeriods) {
-			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
-		}
-		return total;
+		return calculateTotalWorkedMinutes(workPeriods);
 	}
 	
 	class Filter<T> {
@@ -538,6 +462,14 @@ public class Work implements WorkRepository {
 			};
 			return datePredicate;
 		}
+	}
+
+	private int calculateTotalWorkedMinutes(List<WorkPeriod> workPeriods) {
+		int total = 0;
+		for (WorkPeriod workPeriod : workPeriods) {
+			total += Minutes.minutesBetween(workPeriod.getStartTime(), workPeriod.getStopTime()).getMinutes();
+		}
+		return total;
 	}
 
 	private Predicate<WorkPeriod> createWorkPeriodPredicate(final Employee employee) {
