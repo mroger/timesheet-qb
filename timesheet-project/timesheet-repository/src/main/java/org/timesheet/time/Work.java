@@ -220,8 +220,6 @@ public class Work implements WorkRepository {
 	}
 
 	public int getWorkedMinutesByDateByEmployee(LocalDate date, Employee employee) {
-		
-		
 		List<WorkPeriod> workPeriods = new Filter<LocalDate>(workUnitsByDate, date)
 			.andFilterBy(employee)
 			.getResult();
@@ -229,14 +227,12 @@ public class Work implements WorkRepository {
 		return calculateTotalWorkedMinutes(workPeriods);
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public int getWorkedMinutesByDateInterval(LocalDate startDate, LocalDate finishDate) {
-		Predicate<LocalDate> dateIntervalPredicate = createDatePredicate(startDate, finishDate);
-		Map<LocalDate, List<WorkPeriod>> _workUnits = Maps.filterKeys(workUnitsByDate, dateIntervalPredicate);
-		List<WorkPeriod> workPeriods = Lists.newArrayList();
-		for (LocalDate date : _workUnits.keySet()) {
-			List<WorkPeriod> _workPeriods = _workUnits.get(date);
-			workPeriods.addAll(_workPeriods);
-		}
+		List<WorkPeriod> workPeriods = new Filter(workUnits)
+			.andFilterBy(startDate, finishDate)
+			.getResult();		
+		
 		return calculateTotalWorkedMinutes(workPeriods);
 	}
 
