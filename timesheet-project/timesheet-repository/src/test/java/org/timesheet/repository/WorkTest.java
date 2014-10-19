@@ -23,17 +23,6 @@ import br.org.matrix.timesheet.time.WorkPeriod;
 
 public class WorkTest {
 
-//	@Test
-//	public void shouldReturnEmptyWorkUnit() {
-//		Work workDay = new Work();
-//		List<WorkPeriod> workUnits = workDay.findByDate(today());
-//		assertThat(workUnits.size(), equalTo(0));
-//	}
-//
-//	private LocalDate today() {
-//		return new LocalDate();
-//	}
-	
 	@Test
 	public void shouldStoreWorkUnit() {
 		LocalDate date = today();
