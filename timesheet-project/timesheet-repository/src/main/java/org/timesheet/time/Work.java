@@ -135,15 +135,11 @@ public class Work implements WorkRepository {
 	}
 
 	//TODO Duplicated with getWorkedMinutesByDateInterval()
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<WorkPeriod> findByDateInterval(final LocalDate startDate, final LocalDate finishDate) {
-		Predicate<LocalDate> dateIntervalPredicate = createDatePredicate(startDate, finishDate);
-		Map<LocalDate, List<WorkPeriod>> _workUnits = Maps.filterKeys(workUnitsByDate, dateIntervalPredicate);
-		List<WorkPeriod> workPeriods = Lists.newArrayList();
-		for (LocalDate date : _workUnits.keySet()) {
-			List<WorkPeriod> _workPeriods = _workUnits.get(date);
-			workPeriods.addAll(_workPeriods);
-		}
-		return workPeriods;
+		return new Filter(workUnits)
+			.andFilterBy(startDate, finishDate)
+			.getResult();
 	}
 
 	//TODO Duplicated with getWorkedMinutesByDateIntervalAndEmployee()
