@@ -472,62 +472,6 @@ public class Work implements WorkRepository {
 		return total;
 	}
 
-	private Predicate<WorkPeriod> createWorkPeriodPredicate(final Employee employee) {
-		Predicate<WorkPeriod> employeePredicate = new Predicate<WorkPeriod>() {
-			public boolean apply(WorkPeriod workPeriod) {
-				return workPeriod.getEmployee().equals(employee);
-			}
-		};
-		return employeePredicate;
-	}
-
-	private Predicate<WorkPeriod> createWorkPeriodPredicate(final LocalDate startDate, final LocalDate finishDate) {
-		Predicate<WorkPeriod> employeePredicate = new Predicate<WorkPeriod>() {
-			public boolean apply(WorkPeriod workPeriod) {
-				return (workPeriod.getDate().compareTo(startDate) >= 0) && 
-					(workPeriod.getDate().compareTo(finishDate) <= 0);
-			}
-		};
-		return employeePredicate;
-	}
-
-	private Predicate<WorkPeriod> createWorkPeriodPredicate(final LocalDate date) {
-		Predicate<WorkPeriod> datePredicate = new Predicate<WorkPeriod>() {
-			public boolean apply(WorkPeriod workPeriod) {
-				return workPeriod.getDate().equals(date);
-			}
-		};
-		return datePredicate;
-	}
-
-	private Predicate<WorkPeriod> createWorkPeriodPredicate(final int month) {
-		Predicate<WorkPeriod> datePredicate = new Predicate<WorkPeriod>() {
-			public boolean apply(WorkPeriod workPeriod) {
-				return workPeriod.getDate().monthOfYear().get() == month;
-			}
-		};
-		return datePredicate;
-	}
-
-	private Predicate<WorkPeriod> createWorkPeriodPredicate(final int startMonth, final int finishMonth) {
-		Predicate<WorkPeriod> datePredicate = new Predicate<WorkPeriod>() {
-			public boolean apply(WorkPeriod workPeriod) {
-				return (workPeriod.getDate().monthOfYear().get() >= startMonth) && 
-					(workPeriod.getDate().monthOfYear().get() <= finishMonth);
-			}
-		};
-		return datePredicate;
-	}
-
-	private Predicate<WorkPeriod> createWorkPeriodPredicate(final WorkPeriod workPeriodParam) {
-		Predicate<WorkPeriod> workPeriodPredicate = new Predicate<WorkPeriod>() {
-			public boolean apply(WorkPeriod workPeriod) {
-				return workPeriod.equals(workPeriodParam);
-			}
-		};
-		return workPeriodPredicate;
-	}
-
 	private Predicate<LocalDate> createDatePredicate(final LocalDate startDate, final LocalDate finishDate) {
 		Predicate<LocalDate> dateIntervalPredicate = new Predicate<LocalDate>() {
 			public boolean apply(LocalDate date) {
