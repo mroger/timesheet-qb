@@ -464,12 +464,4 @@ public class Work implements WorkRepository {
 		return total;
 	}
 
-	private Predicate<LocalDate> createDatePredicate(final LocalDate startDate, final LocalDate finishDate) {
-		Predicate<LocalDate> dateIntervalPredicate = new Predicate<LocalDate>() {
-			public boolean apply(LocalDate date) {
-				return (date.compareTo(startDate) >= 0) && (date.compareTo(finishDate) <= 0);
-			}
-		};
-		return dateIntervalPredicate;
-	}
 }
