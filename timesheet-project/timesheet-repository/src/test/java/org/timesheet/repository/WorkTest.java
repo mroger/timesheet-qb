@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
+import org.junit.Before;
 import org.junit.Test;
 import org.timesheet.time.Work;
 import org.timesheet.time.WorkRepository;
@@ -22,6 +23,13 @@ import br.org.matrix.timesheet.project.Project;
 import br.org.matrix.timesheet.time.WorkPeriod;
 
 public class WorkTest {
+	
+	private WorkRepository workRepository;
+	
+	@Before
+	public void setUp() {
+		workRepository = new Work();
+	}
 
 	@Test
 	public void shouldStoreWorkUnit() {
@@ -29,7 +37,6 @@ public class WorkTest {
 		Allocation allocation = Allocation.createAllocation(1, "emp01", 1, "project01", 1, "client01");
 		WorkPeriod workPeriod = new WorkPeriod(date, time(11, 0), time(15, 0), allocation);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workPeriod);
 		
 		List<WorkPeriod> workPeriods = workRepository.findByDate(date);
@@ -44,7 +51,6 @@ public class WorkTest {
 		WorkPeriod workPeriodStored = new WorkPeriod(date, time(11, 0), time(15, 0), allocationEmployee1);
 		WorkPeriod workPeriodNotStored = new WorkPeriod(date, time(16, 0), time(20, 0), allocationEmployee2);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workPeriodStored);
 		
 		List<WorkPeriod> workPeriods = workRepository.findByDate(date);
@@ -58,7 +64,6 @@ public class WorkTest {
 		WorkPeriod workPeriodStored = new WorkPeriod(date, time(11, 0), time(15, 0), allocation);
 		WorkPeriod workPeriodEqualToStored = new WorkPeriod(date, time(11, 0), time(15, 0), allocation);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workPeriodStored);
 		
 		List<WorkPeriod> workPeriods = workRepository.findByDate(date);
@@ -75,7 +80,6 @@ public class WorkTest {
 		WorkPeriod workedYesterday1 = new WorkPeriod(yesterday, time(8, 0), time(12, 0), allocation);
 		WorkPeriod workedYesterday2 = new WorkPeriod(yesterday, time(13, 0), time(17, 0), allocation);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedToday1);
 		workRepository.store(workedToday2);
 		workRepository.store(workedYesterday1);
@@ -95,7 +99,6 @@ public class WorkTest {
 		Allocation allocation = Allocation.createAllocation(1, "emp01", 1, "project01", 1, "client01");
 		WorkPeriod workedToday = new WorkPeriod(today, time(8, 0), time(12, 0), allocation);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedToday);
 		
 		List<WorkPeriod> workPeriods = workRepository.findByEmployee(employee1);
@@ -115,7 +118,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Client2 = new WorkPeriod(today, time(8, 0), time(12, 0), allocationClient2);
 		WorkPeriod workedInterval2Client2 = new WorkPeriod(today, time(13, 0), time(17, 0), allocationClient2);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Client1);
 		workRepository.store(workedInterval2Client1);
 		workRepository.store(workedInterval1Client2);
@@ -146,7 +148,6 @@ public class WorkTest {
 		WorkPeriod workedYesterday1Employee2 = new WorkPeriod(yesterday, time(8, 0), time(12, 0), allocationEmployee2);
 		WorkPeriod workedYesterday2Employee2 = new WorkPeriod(yesterday, time(13, 0), time(17, 0), allocationEmployee2);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedToday1Employee1);
 		workRepository.store(workedToday2Employee1);
 		workRepository.store(workedYesterday1Employee1);
@@ -184,7 +185,6 @@ public class WorkTest {
 		WorkPeriod workedDate5Employee1 = new WorkPeriod(date5, time(8, 0), time(12, 0), allocation);
 		WorkPeriod workedDate6Employee1 = new WorkPeriod(date6, time(8, 0), time(12, 0), allocation);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedDate1Employee1);
 		workRepository.store(workedDate2Employee1);
 		workRepository.store(workedDate3Employee1);
@@ -223,7 +223,6 @@ public class WorkTest {
 		WorkPeriod workedDate1Employee2 = new WorkPeriod(date1, time(8, 0), time(12, 0), allocationEmployee2);
 		WorkPeriod workedDate2Employee2 = new WorkPeriod(date2, time(8, 0), time(12, 0), allocationEmployee2);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedDate1Employee1);
 		workRepository.store(workedDate2Employee1);
 		workRepository.store(workedDate3Employee1);
@@ -253,7 +252,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Employee1 = new WorkPeriod(today, time(8, 0), time(12, 0), allocationEmployee1);
 		WorkPeriod workedInterval2Employee1 = new WorkPeriod(today, time(10, 0), time(15, 0), allocationEmployee1);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Employee1);
 		workRepository.store(workedInterval2Employee1);
 	}
@@ -268,7 +266,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Employee1 = new WorkPeriod(yesterday, time(8, 0), time(12, 0), allocationEmployee1);
 		WorkPeriod workedInterval2Employee1 = new WorkPeriod(today, time(10, 0), time(15, 0), allocationEmployee1);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Employee1);
 		workRepository.store(workedInterval2Employee1);
 	}
@@ -283,7 +280,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Employee1 = new WorkPeriod(today, time(8, 0), time(12, 0), allocationEmployee1);
 		WorkPeriod workedInterval2Employee2 = new WorkPeriod(today, time(10, 0), time(15, 0), allocationEmployee2);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Employee1);
 		workRepository.store(workedInterval2Employee2);
 	}
@@ -300,7 +296,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Client2 = new WorkPeriod(today, time(8, 0), time(12, 0), allocationClient2);
 		WorkPeriod workedInterval2Client2 = new WorkPeriod(today, time(13, 0), time(17, 0), allocationClient2);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Client1);
 		workRepository.store(workedInterval2Client1);
 		workRepository.store(workedInterval1Client2);
@@ -329,7 +324,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date2Client2 = new WorkPeriod(today, time(8, 0), time(12, 0), allocationClient2);
 		WorkPeriod workedInterval2Date2Client2 = new WorkPeriod(today, time(13, 0), time(17, 0), allocationClient2);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
@@ -382,7 +376,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 0), time(12, 0), allocationClient2);
 		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 0), time(17, 0), allocationClient2);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
@@ -457,7 +450,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 0), time(12, 0), allocationClient2);
 		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 0), time(17, 0), allocationClient2);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
@@ -531,7 +523,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 0), time(12, 0), allocationClient2);
 		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 0), time(17, 0), allocationClient2);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
@@ -614,7 +605,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date8Client2 = new WorkPeriod(date8, time(8, 0), time(12, 0), allocationClient2);
 		WorkPeriod workedInterval2Date8Client2 = new WorkPeriod(date8, time(13, 0), time(17, 0), allocationClient2);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
@@ -723,7 +713,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date8Client2 = new WorkPeriod(date8, time(8, 0), time(12, 0), allocationClient2);
 		WorkPeriod workedInterval2Date8Client2 = new WorkPeriod(date8, time(13, 0), time(17, 0), allocationClient2);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
@@ -820,7 +809,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date8Client2 = new WorkPeriod(date8, time(8, 0), time(12, 0), allocationClient2);
 		WorkPeriod workedInterval2Date8Client2 = new WorkPeriod(date8, time(13, 0), time(17, 0), allocationClient2);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
@@ -879,7 +867,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1 = new WorkPeriod(today, time(8, 0), time(12, 0), allocationClient1);
 		WorkPeriod workedInterval2 = new WorkPeriod(today, time(13, 0), time(17, 0), allocationClient1);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1);
 		workRepository.store(workedInterval2);
 		
@@ -903,7 +890,6 @@ public class WorkTest {
 		WorkPeriod workedInterval2 = new WorkPeriod(today, time(13, 0), time(17, 0), allocationClient1);
 		WorkPeriod workedInterval3 = new WorkPeriod(today, time(18, 0), time(21, 0), allocationClient1);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1);
 		workRepository.store(workedInterval2);
 		
@@ -920,7 +906,6 @@ public class WorkTest {
 		WorkPeriod workedInterval2 = new WorkPeriod(today, time(13, 0), time(17, 0), allocationClient1);
 		WorkPeriod workedInterval3 = new WorkPeriod(today, time(18, 0), time(21, 0), allocationClient1);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1);
 		workRepository.store(workedInterval2);
 		workRepository.store(workedInterval3);
@@ -950,7 +935,6 @@ public class WorkTest {
 		WorkPeriod workedInterval2 = new WorkPeriod(today, time(13, 27), time(17, 12), allocationClient1); // 225 min
 		WorkPeriod workedInterval3 = new WorkPeriod(today, time(18, 3), time(21, 19), allocationClient1); // 196 min
 																										  // 666 min
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1);
 		workRepository.store(workedInterval2);
 		workRepository.store(workedInterval3);
@@ -977,7 +961,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date2Client2 = new WorkPeriod(today, time(8, 9), time(12, 39), allocationClient2); // 270 min
 		WorkPeriod workedInterval2Date2Client2 = new WorkPeriod(today, time(13, 40), time(17, 50), allocationClient2); // 250 min
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
@@ -1010,7 +993,6 @@ public class WorkTest {
 		WorkPeriod workedDate5Employee1 = new WorkPeriod(date5, time(8, 20), time(12, 30), allocation); // 250 min
 		WorkPeriod workedDate6Employee1 = new WorkPeriod(date6, time(8, 10), time(12, 20), allocation); // 250 min
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedDate1Employee1);
 		workRepository.store(workedDate2Employee1);
 		workRepository.store(workedDate3Employee1);
@@ -1044,7 +1026,6 @@ public class WorkTest {
 		WorkPeriod workedDate1Employee2 = new WorkPeriod(date1, time(8, 10), time(12, 50), allocationEmployee2); // 280 min
 		WorkPeriod workedDate2Employee2 = new WorkPeriod(date2, time(8, 20), time(13, 0), allocationEmployee2); // 280 min
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedDate1Employee1);
 		workRepository.store(workedDate2Employee1);
 		workRepository.store(workedDate3Employee1);
@@ -1083,7 +1064,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date6Client1 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationClient1); // 272 min
 		WorkPeriod workedInterval2Date6Client1 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationClient1); // 265 min
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
@@ -1127,7 +1107,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationClient2); // 272 min
 		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationClient2); // 265 min
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
@@ -1171,7 +1150,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationClient2); // 272 min
 		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationClient2); // 265 min
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
@@ -1217,7 +1195,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationEmployee2Client2); // 272 min
 		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationEmployee2Client2); // 265 min
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
@@ -1260,7 +1237,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date6Client1 = new WorkPeriod(date6, time(8, 0), time(12, 0), allocationClient1);
 		WorkPeriod workedInterval2Date6Client1 = new WorkPeriod(date6, time(13, 0), time(17, 0), allocationClient1);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
@@ -1304,7 +1280,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 0), time(12, 0), allocationClient2);
 		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 0), time(17, 0), allocationClient2);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client2);
@@ -1348,7 +1323,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 0), time(12, 0), allocationClient2);
 		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 0), time(17, 0), allocationClient2);
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
@@ -1394,7 +1368,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationEmployee2Client2); // 272 min
 		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationEmployee2Client2); // 265 min
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
@@ -1440,7 +1413,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationEmployee2Client2); // 272 min
 		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationEmployee2Client2); // 265 min
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
@@ -1486,7 +1458,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationEmployee2Client2); // 272 min
 		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationEmployee2Client2); // 265 min
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
@@ -1532,7 +1503,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationEmployee2Client2); // 272 min
 		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationEmployee2Client2); // 265 min
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
@@ -1578,7 +1548,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationEmployee2Client2); // 272 min
 		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationEmployee2Client2); // 265 min
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
@@ -1624,7 +1593,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationEmployee2Client2); // 272 min
 		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationEmployee2Client2); // 265 min
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
@@ -1670,7 +1638,6 @@ public class WorkTest {
 		WorkPeriod workedInterval1Date6Client2 = new WorkPeriod(date6, time(8, 5), time(12, 37), allocationEmployee2Client2); // 272 min
 		WorkPeriod workedInterval2Date6Client2 = new WorkPeriod(date6, time(13, 1), time(17, 26), allocationEmployee2Client2); // 265 min
 		
-		WorkRepository workRepository = new Work();
 		workRepository.store(workedInterval1Date1Client1);
 		workRepository.store(workedInterval2Date1Client1);
 		workRepository.store(workedInterval1Date2Client1);
