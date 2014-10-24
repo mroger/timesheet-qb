@@ -247,13 +247,14 @@ public class WorkTest {
 	public void shouldNotAcceptWorkPeriodThatOverlapsWithExistingWorkPeriodForTheSameEmployee() {
 		LocalDate today = today();
 		
-		Allocation allocationEmployee1 = Allocation.createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		Allocation allocationEmployee1Client1 = Allocation.createAllocation(1, "emp01", 1, "project01", 1, "client01");
+		Allocation allocationEmployee1Client2 = Allocation.createAllocation(1, "emp01", 1, "project01", 2, "client02");
 		
-		WorkPeriod workedInterval1Employee1 = new WorkPeriod(today, time(8, 0), time(12, 0), allocationEmployee1);
-		WorkPeriod workedInterval2Employee1 = new WorkPeriod(today, time(10, 0), time(15, 0), allocationEmployee1);
+		WorkPeriod workedInterval1Employee1Client1 = new WorkPeriod(today, time(8, 0), time(12, 0), allocationEmployee1Client1);
+		WorkPeriod workedInterval2Employee1Client2 = new WorkPeriod(today, time(10, 0), time(15, 0), allocationEmployee1Client2);
 		
-		workRepository.store(workedInterval1Employee1);
-		workRepository.store(workedInterval2Employee1);
+		workRepository.store(workedInterval1Employee1Client1);
+		workRepository.store(workedInterval2Employee1Client2);
 	}
 	
 	@Test

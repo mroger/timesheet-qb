@@ -93,7 +93,7 @@ public class WorkPeriod {
 		int stopMillisOfDay = this.getStopTime().getMillisOfDay();
 		for (WorkPeriod workPeriodStored : workPeriodsByEmployee) {
 			if (workPeriodStored.getDate().equals(this.getDate()) &&
-					workPeriodStored.getClient().equals(this.getClient())) {
+					workPeriodStored.getEmployee().equals(this.getEmployee())) {
 				int startStoredMillisOfDay = workPeriodStored.getStartTime().getMillisOfDay();
 				int stopStoredMillisOfDay = workPeriodStored.getStopTime().getMillisOfDay();
 				if (((startMillisOfDay <= startStoredMillisOfDay) && (stopMillisOfDay >= startStoredMillisOfDay)) 
