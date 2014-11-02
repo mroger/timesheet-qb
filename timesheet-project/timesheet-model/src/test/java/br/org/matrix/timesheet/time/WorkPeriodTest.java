@@ -10,7 +10,7 @@ public class WorkPeriodTest {
 
 	@Test(expected=IllegalStateException.class)
 	public void create_ClientNotSet() {
-		new WorkPeriod(today(), now(), now(), null);
+		new WorkPeriod(today(), time(11, 0), time(15, 0), null);
 	}
 	
 	@Test(expected=IllegalStateException.class)
