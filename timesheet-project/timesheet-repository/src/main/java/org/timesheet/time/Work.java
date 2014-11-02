@@ -11,9 +11,9 @@ import org.joda.time.LocalTime;
 import org.joda.time.Minutes;
 
 import br.org.matrix.timesheet.project.Client;
-import br.org.matrix.timesheet.project.DateIntervalOvelapsException;
 import br.org.matrix.timesheet.project.Employee;
 import br.org.matrix.timesheet.project.Project;
+import br.org.matrix.timesheet.time.DateIntervalOvelapsException;
 import br.org.matrix.timesheet.time.WorkPeriod;
 
 import com.google.common.base.Predicate;
@@ -61,14 +61,7 @@ public class Work implements WorkRepository {
 	private void checkIfOverlapsForEmployee(WorkPeriod workPeriod) {
 		List<WorkPeriod> workPeriodsByEmployee = 
 			new WorkPeriodFilter<Employee>(workUnitsByEmployee, workPeriod.getEmployee()).getResult();
-		if (workPeriodsByEmployee != null) {
-			if (workPeriod.overlaps(workPeriodsByEmployee)) {
-				throw new DateIntervalOvelapsException(workPeriod.getEmployee().getId(), 
-						workPeriod.getEmployee().getName(), workPeriod.getDate(), 
-						workPeriod.getStartTime(), workPeriod.getStopTime());
-			}
-		}
-		
+		workPeriod.overlaps(workPeriodsByEmployee);
 	}
 
 	private void storeWorkPeriodByClient(WorkPeriod workPeriod) {

@@ -17,9 +17,9 @@ import org.timesheet.time.WorkRepository;
 
 import br.org.matrix.timesheet.project.Allocation;
 import br.org.matrix.timesheet.project.Client;
-import br.org.matrix.timesheet.project.DateIntervalOvelapsException;
 import br.org.matrix.timesheet.project.Employee;
 import br.org.matrix.timesheet.project.Project;
+import br.org.matrix.timesheet.time.DateIntervalOvelapsException;
 import br.org.matrix.timesheet.time.WorkPeriod;
 
 public class WorkTest {
